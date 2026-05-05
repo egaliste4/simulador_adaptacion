@@ -102,14 +102,45 @@
             box-shadow: 0 3px 10px rgba(0,0,0,0.04); margin-bottom: 15px;
         }
         .equivalence-card:last-child { margin-bottom: 0; }
+        .equivalence-card.excedente {
+            background: #fff8e1;
+            border-color: #ffc107;
+            border-left: 4px solid #ff9800;
+        }
+        .equivalence-card.duplicada {
+            opacity: 0.7;
+            background: #f1f3f5;
+            border-style: dashed;
+        }
         .equivalence-type {
             font-size: 0.85rem; color: #fff; background-color: #007bff; padding: 4px 9px;
             border-radius: 4px; display: inline-block; margin-bottom: 8px; font-weight: 500;
         }
+        .equivalence-type.excedente-badge { background-color: #ff9800; }
+        .equivalence-type.duplicada-badge { background-color: #6c757d; }
         .equivalence-content h4 { font-size: 1.1rem; color: #343a40; margin-bottom: 3px; }
         .equivalence-content .grado-details { font-size: 0.9rem; color: #555; margin-bottom: 8px; }
-        .equivalence-details span { /* Para asegurar que estén en línea si caben */
-            margin-right: 8px; 
+        .equivalence-details span {
+            margin-right: 8px;
+        }
+        .excedente-note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            font-size: 0.85rem;
+            color: #856404;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+        .duplicada-note {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-left: 3px solid #6c757d;
+            font-size: 0.85rem;
+            color: #495057;
+            border-radius: 4px;
         }
 
 
@@ -130,6 +161,28 @@
         .summary-text strong { color: #0056b3; }
         .summary-credits { margin-top:15px; font-weight: bold; font-size: 1.1rem;}
         .summary-credits p { margin-bottom: 5px; }
+        .summary-warning {
+            margin-top: 15px;
+            padding: 12px 15px;
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            border-radius: 4px;
+            color: #856404;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .summary-warning strong { color: #856404; }
+        .optativas-counter {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        .optativas-counter.ok { background: #d4edda; color: #155724; }
+        .optativas-counter.full { background: #fff3cd; color: #856404; }
+        .optativas-counter.over { background: #f8d7da; color: #721c24; }
 
 
         /* --- ESTILOS DE IMPRESIÓN --- */
@@ -137,9 +190,9 @@
             body {
                 padding: 0;
                 margin: 0;
-                font-size: 10pt; /* Ajustar tamaño para impresión */
-                background: #fff; /* Fondo blanco para impresión */
-                color: #000; /* Texto negro */
+                font-size: 10pt;
+                background: #fff;
+                color: #000;
             }
             .container {
                 box-shadow: none;
@@ -148,13 +201,13 @@
                 max-width: 100%;
             }
             .header, .search-section, #clear-selected-button, #print-summary-button, .no-results, .no-selected-subjects, .buttons-container {
-                display: none !important; /* Ocultar elementos no necesarios para el PDF */
+                display: none !important;
             }
             .results-section {
-                display: block !important; /* Asegurar que se vea */
+                display: block !important;
                 animation: none;
             }
-            .results-header { /* Estilo más simple para impresión */
+            .results-header {
                 background: #eee;
                 color: #000;
                 text-align: left;
@@ -167,7 +220,7 @@
                 border: none; padding: 0; background-color: #fff;
             }
             .licenciatura-block {
-                page-break-inside: avoid; /* Evitar saltos de página dentro de un bloque */
+                page-break-inside: avoid;
                 border-bottom: 1px solid #ccc;
                 margin-bottom: 15px; padding-bottom: 10px;
             }
@@ -176,20 +229,34 @@
                 box-shadow: none; border: 1px solid #ddd; padding: 10px;
                 page-break-inside: avoid;
             }
+            .equivalence-card.excedente {
+                background: #f9f9f9;
+                border-left: 3px solid #000;
+            }
             .equivalence-type { background-color: #ddd; color: #000; font-weight: normal; }
+            .equivalence-type.excedente-badge { background-color: #999; color: #fff; }
             .equivalence-content h4 { font-size: 1rem; }
+            .excedente-note {
+                background: #f5f5f5;
+                border-left: 2px solid #999;
+                color: #000;
+            }
 
             .summary-section {
                 border-left: none; background: #fff; padding: 15px 0; margin-top: 20px;
-                border-top: 2px solid #000; /* Separador superior */
+                border-top: 2px solid #000;
             }
             .summary-section h3 { font-size: 1.2rem; }
             .summary-text ul { margin-bottom: 5px;}
             .summary-text li { font-size: 9pt; }
             .summary-credits p { font-size: 10pt; }
+            .summary-warning {
+                background: #f5f5f5;
+                border-left: 3px solid #000;
+                color: #000;
+            }
 
-            /* Forzar que los enlaces no se muestren con la URL en algunos navegadores */
-            a[href]:after { content: ""; } 
+            a[href]:after { content: ""; }
         }
         @media (max-width: 768px) {
             .header h1 { font-size: 1.8rem; }
@@ -245,22 +312,13 @@
 
     <script>
         // --- DATOS DE ADAPTACIÓN ---
-        // Códigos Licenciatura originales: 1044XX (Adaptación UCM) y 2XX (Plan 2000)
-        // Se usarán los códigos del Plan 2000 (2XX) como principales donde aplique,
-        // y se mantendrán los 1044XX para las que no tienen código 2XX en la tabla de adaptación.
         const adaptationData = [
-            // Datos de la tabla de adaptación original, actualizados con créditos de Lic. y Grado,
-            // y nombres de tipo/asignatura.
-            // Créditos Grado: TODOS SON 6 ECTS
-            // Caracteres Lic: TR: Troncal, OB: Obligatoria, OP: Optativa
-            // Caracteres Grado: BÁS: Formación Básica, OB: Obligatoria, OPT: Optativa
-
             // PRIMER CURSO LICENCIATURA
             {
                 licenciatura: { codigo: "200", nombreOriginalUCM: "ANTROPOLOGÍA", nombre: "ANTROPOLOGÍA", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 },
                 grado: [
-                    { codigo: "801292", nombre: "ANTROPOLOGÍA I", caracter: "Formación Básica", creditos: 6 }, // Plan Grado: Antropología Filosófica I
-                    { codigo: "801297", nombre: "ANTROPOLOGÍA II", caracter: "Formación Básica", creditos: 6 } // Plan Grado: Antropología Filosófica II
+                    { codigo: "801292", nombre: "ANTROPOLOGÍA I", caracter: "Formación Básica", creditos: 6 },
+                    { codigo: "801297", nombre: "ANTROPOLOGÍA II", caracter: "Formación Básica", creditos: 6 }
                 ]
             },
             {
@@ -284,10 +342,9 @@
                     { codigo: "801313", nombre: "HERMENÉUTICA Y LENGUAJE", caracter: "Optativa", creditos: 6 }
                 ]
             },
-            // LENGUA I (Alemán, Latín, Griego)
             {
                 licenciatura: { codigo: "204", nombreOriginalUCM: "ALEMÁN I", nombre: "ALEMÁN PARA FILÓSOFOS I", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 9 },
-                grado: [ // Adaptación UCM original mapea esto así, aunque parezca extraño.
+                grado: [
                     { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 },
                     { codigo: "801294", nombre: "LITERATURA CONTEMPORÁNEA", caracter: "Formación Básica", creditos: 6 }
                 ]
@@ -295,24 +352,24 @@
             {
                 licenciatura: { codigo: "205", nombreOriginalUCM: "LATÍN I", nombre: "LATÍN I", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 9 },
                 grado: [
-                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 }, // Mapeo UCM
+                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 },
                     { codigo: "801300", nombre: "HISTORIA DEL MUNDO CONTEMPORÁNEO", caracter: "Formación Básica", creditos: 6 }
                 ]
             },
             {
                 licenciatura: { codigo: "206", nombreOriginalUCM: "GRIEGO I", nombre: "GRIEGO I", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 9 },
                 grado: [
-                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 }, // Mapeo UCM
-                    { codigo: "801290", nombre: "HISTORIA DEL MUNDO CONTEMPORÁNEO", caracter: "Formación Básica", creditos: 6 } // Este es el código real, antes era 801290 en el plan de adaptación
+                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 },
+                    { codigo: "801290", nombre: "HISTORIA DEL MUNDO CONTEMPORÁNEO", caracter: "Formación Básica", creditos: 6 }
                 ]
             },
 
             // SEGUNDO CURSO LICENCIATURA
             {
-                licenciatura: { codigo: "207", nombreOriginalUCM: "HISTORIA FILOSOFÍA MEDIEVAL", nombre: "HISTORIA DE LA FILOSOFÍA MEDIEVAL", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 }, // El plan 2000 dice TR. 11, la tabla de adaptación dice TR 1º. Tomo el curso de la tabla.
+                licenciatura: { codigo: "207", nombreOriginalUCM: "HISTORIA FILOSOFÍA MEDIEVAL", nombre: "HISTORIA DE LA FILOSOFÍA MEDIEVAL", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 },
                 grado: [
                     { codigo: "801299", nombre: "HISTORIA DE LA FILOSOFÍA MEDIEVAL", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801320", nombre: "SEMINARIO DE FILOSOFÍA MEDIEVAL: EL PENSAMIENTO ÁRABE CLÁSICO", caracter: "Optativa", creditos: 6 } // Nombre completo del plan de grado
+                    { codigo: "801320", nombre: "SEMINARIO DE FILOSOFÍA MEDIEVAL: EL PENSAMIENTO ÁRABE CLÁSICO", caracter: "Optativa", creditos: 6 }
                 ]
             },
             {
@@ -322,7 +379,6 @@
                     { codigo: "801343", nombre: "FILOSOFÍA DEL LENGUAJE II", caracter: "Obligatoria", creditos: 6 }
                 ]
             },
-             // LENGUA II (Alemán, Latín, Griego)
             {
                 licenciatura: { codigo: "209", nombreOriginalUCM: "ALEMÁN II", nombre: "ALEMÁN PARA FILÓSOFOS II", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
                 grado: [ { codigo: "801337", nombre: "ALEMÁN AVANZADO PARA FILÓSOFOS", caracter: "Optativa", creditos: 6 } ]
@@ -333,7 +389,7 @@
             },
             {
                 licenciatura: { codigo: "211", nombreOriginalUCM: "GRIEGOII", nombre: "GRIEGO II", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
-                grado: [ { codigo: "801339", nombre: "GRIEGO PARA FILÓSOFOS I", caracter: "Optativa", creditos: 6 } ] // Plan Grado dice "Griego para Filósofos I" y "II"
+                grado: [ { codigo: "801339", nombre: "GRIEGO PARA FILÓSOFOS I", caracter: "Optativa", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "212", nombreOriginalUCM: "FILOSOFÍA NATURALEZA", nombre: "FILOSOFÍA DE LA NATURALEZA", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
@@ -341,7 +397,7 @@
             },
             {
                 licenciatura: { codigo: "213", nombreOriginalUCM: "TEORÍA RACIONALIDAD PRÁCTICA", nombre: "TEORÍA DE LA RACIONALIDAD PRÁCTICA", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801339G", nombre: "TEORÍA DE LA RACIONALIDAD PRÁCTICA", caracter: "Optativa", creditos: 6 } ] // Código 801339G es placeholder de la tabla original
+                grado: [ { codigo: "801339G", nombre: "TEORÍA DE LA RACIONALIDAD PRÁCTICA", caracter: "Optativa", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "214", nombreOriginalUCM: "INTRODUCCIÓN PSICOLOGÍA", nombre: "INTRODUCCIÓN A LA PSICOLOGÍA", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 4.5 },
@@ -352,7 +408,7 @@
                 licenciatura: { codigo: "215", nombreOriginalUCM: "HISTORIA FILOSOFÍA MODERNA", nombre: "HISTORIA DE LA FILOSOFÍA MODERNA", caracterOriginalUCM: "TR. 3º", caracter: "Troncal", creditos: 11 },
                 grado: [
                     { codigo: "801307", nombre: "HISTORIA DE LA FILOSOFÍA MODERNA", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801321", nombre: "SEMINARIO DE FILOSOFÍA MODERNA", caracter: "Optativa", creditos: 6 } // La tabla original de adaptación dice "Hª Fª Moderna II", el plan de grado dice "Seminario de Fª Moderna"
+                    { codigo: "801321", nombre: "SEMINARIO DE FILOSOFÍA MODERNA", caracter: "Optativa", creditos: 6 }
                 ]
             },
             {
@@ -371,11 +427,11 @@
             },
             {
                 licenciatura: { codigo: "218", nombreOriginalUCM: "HISTORIA Y FILOSOFÍA DE LA LÓGICA", nombre: "HISTORIA Y FILOSOFÍA DE LA LÓGICA", caracterOriginalUCM: "OB. 3º", caracter: "Obligatoria", creditos: 6 },
-                grado: [ { codigo: "801313F", nombre: "FILOSOFÍA DE LA LÓGICA", caracter: "Optativa", creditos: 6 } ] // Código 801313F placeholder
+                grado: [ { codigo: "801313F", nombre: "FILOSOFÍA DE LA LÓGICA", caracter: "Optativa", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "219", nombreOriginalUCM: "FILOSOFÍA RELIGIÓN", nombre: "FILOSOFÍA DE LA RELIGIÓN", caracterOriginalUCM: "OB. 3º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801315F", nombre: "FILOSOFÍA DE LA RELIGIÓN", caracter: "Optativa", creditos: 6 } ] // Código 801315F placeholder
+                grado: [ { codigo: "801315F", nombre: "FILOSOFÍA DE LA RELIGIÓN", caracter: "Optativa", creditos: 6 } ]
             },
 
             // CUARTO CURSO LICENCIATURA (SEGUNDO CICLO)
@@ -389,32 +445,32 @@
             {
                 licenciatura: { codigo: "242", nombreOriginalUCM: "ESTÉTICA", nombre: "ESTÉTICA", caracterOriginalUCM: "TR. 4º", caracter: "Troncal", creditos: 11 },
                 grado: [
-                    { codigo: "801296E", nombre: "ESTÉTICA", caracter: "Formación Básica", creditos: 6 }, // Código 801296E placeholder. Plan grado: Estética (1er curso)
+                    { codigo: "801296E", nombre: "ESTÉTICA", caracter: "Formación Básica", creditos: 6 },
                     { codigo: "801329", nombre: "PERSPECTIVAS DE LA ESTÉTICA CONTEMPORÁNEA", caracter: "Obligatoria", creditos: 6 }
                 ]
             },
             {
                 licenciatura: { codigo: "243", nombreOriginalUCM: "FILOSOFÍA CONTEMPORÁ.", nombre: "FILOSOFÍA CONTEMPORÁNEA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 11 },
                 grado: [
-                    { codigo: "801323S", nombre: "SEMINARIO DE FILOSOFÍA CONTEMPORÁNEA", caracter: "Optativa", creditos: 6 }, // Código 801323S placeholder
+                    { codigo: "801323S", nombre: "SEMINARIO DE FILOSOFÍA CONTEMPORÁNEA", caracter: "Optativa", creditos: 6 },
                     { codigo: "801322", nombre: "FILOSOFÍA DEL SIGLO XIX", caracter: "Obligatoria", creditos: 6 }
                 ]
             },
             {
                 licenciatura: { codigo: "244", nombreOriginalUCM: "HISTORIA FILOSOFÍA ESPAÑOLA", nombre: "HISTORIA DE LA FILOSOFÍA ESPAÑOLA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801341F", nombre: "FILOSOFÍA ESPAÑOLA CONTEMPORÁNEA", caracter: "Obligatoria", creditos: 6 } ] // Código 801341F placeholder
+                grado: [ { codigo: "801341F", nombre: "FILOSOFÍA ESPAÑOLA CONTEMPORÁNEA", caracter: "Obligatoria", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "245", nombreOriginalUCM: "HISTORIA TEORIA CIENCIA", nombre: "HISTORIA Y TEORÍA DE LA CIENCIA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801336H", nombre: "HISTORIA DE LA CIENCIA", caracter: "Optativa", creditos: 6 } ] // Código 801336H placeholder
+                grado: [ { codigo: "801336H", nombre: "HISTORIA DE LA CIENCIA", caracter: "Optativa", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "246", nombreOriginalUCM: "TEORÍA Y SOCIEDAD", nombre: "TEORÍA DE LA SOCIEDAD", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801328T", nombre: "TEORÍA DE LA SOCIEDAD: HISTORIA DE LAS TEORÍAS FEMINISTAS", caracter: "Optativa", creditos: 6 } ] // Código 801328T placeholder
+                grado: [ { codigo: "801328T", nombre: "TEORÍA DE LA SOCIEDAD: HISTORIA DE LAS TEORÍAS FEMINISTAS", caracter: "Optativa", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "247", nombreOriginalUCM: "ESC. Y SIST. PSICOLOG", nombre: "ESCUELAS Y SISTEMAS DE PSICOLOGÍA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801344F", nombre: "FILOSOFÍA DE LA MENTE", caracter: "Obligatoria", creditos: 6 } ] // Código 801344F placeholder
+                grado: [ { codigo: "801344F", nombre: "FILOSOFÍA DE LA MENTE", caracter: "Obligatoria", creditos: 6 } ]
             },
 
             // QUINTO CURSO LICENCIATURA
@@ -432,45 +488,43 @@
                     { codigo: "801342", nombre: "FILOSOFÍA POLÍTICA II", caracter: "Obligatoria", creditos: 6 }
                 ]
             },
-            { // Nombre en tabla adaptación: CORRIENTES ACTUALES DE LA FILOSOFÍA I. Plan 2000: CORRIENTES ACTUALES DE LA FILOSOFÍA: CUESTIONES FUNDAMENTALES
+            {
                 licenciatura: { codigo: "250", nombreOriginalUCM: "CORRIENTES ACTUALES DE LA FILOSOFÍA I", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA: CUESTIONES FUNDAMENTALES", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 6 },
-                grado: [ { codigo: "801345C", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA I", caracter: "Obligatoria", creditos: 6 } ] // Código 801345C placeholder
-            },
-            { // Nombre en tabla adaptación: CORRIENTES ACTUALES DE LA FILOSOFÍA II. Plan 2000: CORR. ACT. DE LA Fª: GRANDES PARADIGMAS
-                licenciatura: { codigo: "251", nombreOriginalUCM: "CORRIENTES ACTUALES DE LA FILOSOFÍA II", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA: GRANDES PARADIGMAS", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 6 },
-                grado: [ { codigo: "801347C", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA II", caracter: "Obligatoria", creditos: 6 } ] // Código 801347C placeholder
+                grado: [ { codigo: "801345C", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA I", caracter: "Obligatoria", creditos: 6 } ]
             },
             {
-                licenciatura: { codigo: "252", nombreOriginalUCM: "FILOSOFÍA DE LA ACCIÓN", nombre: "FILOSOFÍA DE LA ACCIÓN", caracterOriginalUCM: "TR. 5º", caracter: "Obligatoria", creditos: 4.5 }, // Plan 2000: OB, no TR
-                grado: [ { codigo: "801310F", nombre: "FILOSOFÍA DE LA ACCIÓN", caracter: "Optativa", creditos: 6 } ] // Código 801310F placeholder
+                licenciatura: { codigo: "251", nombreOriginalUCM: "CORRIENTES ACTUALES DE LA FILOSOFÍA II", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA: GRANDES PARADIGMAS", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 6 },
+                grado: [ { codigo: "801347C", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA II", caracter: "Obligatoria", creditos: 6 } ]
+            },
+            {
+                licenciatura: { codigo: "252", nombreOriginalUCM: "FILOSOFÍA DE LA ACCIÓN", nombre: "FILOSOFÍA DE LA ACCIÓN", caracterOriginalUCM: "TR. 5º", caracter: "Obligatoria", creditos: 4.5 },
+                grado: [ { codigo: "801310F", nombre: "FILOSOFÍA DE LA ACCIÓN", caracter: "Optativa", creditos: 6 } ]
             },
             {
                 licenciatura: { codigo: "253", nombreOriginalUCM: "FILOSOFÍA DE LA HISTORIA", nombre: "FILOSOFÍA DE LA HISTORIA", caracterOriginalUCM: "OB. 5º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801318F", nombre: "FILOSOFÍA DE LA HISTORIA", caracter: "Optativa", creditos: 6 } ] // Código 801318F placeholder
+                grado: [ { codigo: "801318F", nombre: "FILOSOFÍA DE LA HISTORIA", caracter: "Optativa", creditos: 6 } ]
             },
             
-            // ASIGNATURAS ESPECIALES SIN CÓDIGO "2XX" EN TABLA ADAPTACIÓN (pero con código UCM 1044XX)
-            // Estas se marcarán como Optativas de Licenciatura según solicitud. Créditos son una estimación (4.5 como otras optativas)
+            // ASIGNATURAS ESPECIALES
             {
-                licenciatura: { codigo: "104498", nombreOriginalUCM: "TEORÍAS DE LA LIBERTAD", nombre: "TEORÍAS DE LA LIBERTAD", caracterOriginalUCM: "2º", caracter: "Optativa", creditos: 4.5 }, // Era 2º sin tipo, ahora Optativa. El código 260 del plan 2000 es esta.
+                licenciatura: { codigo: "104498", nombreOriginalUCM: "TEORÍAS DE LA LIBERTAD", nombre: "TEORÍAS DE LA LIBERTAD", caracterOriginalUCM: "2º", caracter: "Optativa", creditos: 4.5 },
                 grado: [ { codigo: "801314", nombre: "TEORÍA DE LA LIBERTAD", caracter: "Optativa", creditos: 6 } ]
             },
             {
-                licenciatura: { codigo: "U 07", nombreOriginalUCM: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", nombre: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", caracterOriginalUCM: "GENÉRICA", caracter: "Optativa", creditos: 4.5 }, // Estimado
-                grado: [ { codigo: "801327C", nombre: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", caracter: "Optativa", creditos: 6 } ] // Código 801327C placeholder
+                licenciatura: { codigo: "U 07", nombreOriginalUCM: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", nombre: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", caracterOriginalUCM: "GENÉRICA", caracter: "Optativa", creditos: 4.5 },
+                grado: [ { codigo: "801327C", nombre: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", caracter: "Optativa", creditos: 6 } ]
             },
-            { // En plan 2000 es la 231
+            {
                 licenciatura: { codigo: "104469F", nombreOriginalUCM: "TEORÍA Y CRÍTICA FEMINISTA", nombre: "TEORÍA Y CRÍTICA FEMINISTA", caracterOriginalUCM: "1º", caracter: "Optativa", creditos: 4.5 },
-                grado: [ { codigo: "801332", nombre: "TEORÍA Y CRÍTICA FEMINISTAS", caracter: "Optativa", creditos: 6 } ] // Plan grado "Teoría y Crítica Feministas" (plural)
+                grado: [ { codigo: "801332", nombre: "TEORÍA Y CRÍTICA FEMINISTAS", caracter: "Optativa", creditos: 6 } ]
             }
-            // NOTA: Faltarían las optativas del Plan 2000 que no están en la tabla de adaptación original.
-            // Por ahora, se trabaja solo con las de la tabla de adaptación proporcionada.
         ];
 
         // --- VARIABLES DE ESTADO Y ELEMENTOS DOM ---
         let filteredLicenciaturaSubjects = [];
         let selectedLicenciaturaCodes = []; 
         const TOTAL_CREDITOS_GRADO = 240;
+        const MAX_OPTATIVAS_RECONOCIBLES = 6;
 
         const searchInput = document.getElementById('search-input');
         const subjectListEl = document.getElementById('subject-list');
@@ -526,56 +580,144 @@
             
             resultsSectionEl.style.display = 'block';
             equivalencesContainerEl.innerHTML = '';
-            let allGradoEquivalentsForSummary = [];
-            let totalCreditosGradoReconocidos = 0;
+            
+            // Acumuladores
+            let allGradoEquivalentsComputables = [];   // Asignaturas que SÍ computan (incl. <=6 optativas)
+            let allGradoEquivalentsExcedentes = [];    // Optativas excedentes (>6)
+            let processedGradoCodes = new Set();       // Para evitar duplicados
+            let optativasReconocidasCount = 0;         // Contador de optativas únicas reconocidas
+            let totalCreditosGradoComputables = 0;     // Suma de créditos que computan
+            let totalCreditosExcedentes = 0;           // Suma de créditos excedentes (informativo)
 
-            if (selectedLicenciaturaCodes.length > 0) {
-                noSelectedSubjectsEl.style.display = 'none';
-                selectedLicenciaturaCodes.forEach(codigoLic => {
-                    const subjectData = adaptationData.find(item => item.licenciatura.codigo === codigoLic);
-                    if (subjectData) {
-                        const block = document.createElement('div');
-                        block.className = 'licenciatura-block';
-                        block.innerHTML = `<h3>${subjectData.licenciatura.nombre}</h3>
-                                           <p class="lic-details">(Licenciatura: ${subjectData.licenciatura.caracter}, ${subjectData.licenciatura.creditos} créd.) equivale a:</p>`;
+            noSelectedSubjectsEl.style.display = 'none';
+            
+            selectedLicenciaturaCodes.forEach(codigoLic => {
+                const subjectData = adaptationData.find(item => item.licenciatura.codigo === codigoLic);
+                if (!subjectData) return;
+                
+                const block = document.createElement('div');
+                block.className = 'licenciatura-block';
+                block.innerHTML = `<h3>${subjectData.licenciatura.nombre}</h3>
+                                   <p class="lic-details">(Licenciatura: ${subjectData.licenciatura.caracter}, ${subjectData.licenciatura.creditos} créd.) equivale a:</p>`;
+                
+                subjectData.grado.forEach((gradoItem, index) => {
+                    let cardClass = 'equivalence-card';
+                    let badgeClass = 'equivalence-type';
+                    let badgeText = `Equivalencia en Grado ${subjectData.grado.length > 1 ? (index + 1) : ''}`;
+                    let extraNote = '';
+                    
+                    const yaProcesada = processedGradoCodes.has(gradoItem.codigo);
+                    
+                    if (yaProcesada) {
+                        // Asignatura de Grado ya reconocida por otra Licenciatura previa
+                        cardClass += ' duplicada';
+                        badgeClass += ' duplicada-badge';
+                        badgeText = 'Ya reconocida';
+                        extraNote = `<p class="duplicada-note">ℹ️ Esta asignatura del Grado ya ha sido reconocida a través de otra asignatura de Licenciatura. No se cuenta dos veces.</p>`;
+                    } else {
+                        processedGradoCodes.add(gradoItem.codigo);
                         
-                        subjectData.grado.forEach((gradoItem, index) => {
-                            block.innerHTML += `
-                                <div class="equivalence-card">
-                                    <div class="equivalence-type">Equivalencia en Grado ${subjectData.grado.length > 1 ? (index + 1) : ''}</div>
-                                    <div class="equivalence-content">
-                                        <h4>${gradoItem.nombre || 'Nombre no disponible'}</h4>
-                                        <p class="grado-details">(Grado: ${gradoItem.caracter}, ${gradoItem.creditos} ECTS)</p>
-                                    </div>
-                                </div>`;
-                            // Para el resumen, solo añadimos si no está ya (basado en código de asignatura de grado)
-                            if (!allGradoEquivalentsForSummary.find(g => g.codigo === gradoItem.codigo)) {
-                                allGradoEquivalentsForSummary.push(gradoItem);
-                                totalCreditosGradoReconocidos += gradoItem.creditos;
+                        if (gradoItem.caracter === 'Optativa') {
+                            optativasReconocidasCount++;
+                            
+                            if (optativasReconocidasCount > MAX_OPTATIVAS_RECONOCIBLES) {
+                                // Optativa excedente
+                                cardClass += ' excedente';
+                                badgeClass += ' excedente-badge';
+                                badgeText = `Optativa nº ${optativasReconocidasCount} (excedente)`;
+                                extraNote = `<p class="excedente-note">⚠️ <strong>Optativa excedente.</strong> El máximo de optativas convalidables es ${MAX_OPTATIVAS_RECONOCIBLES}. Esta asignatura aparecerá en el certificado académico, pero <strong>no computa</strong> para finalizar los estudios de Grado.</p>`;
+                                allGradoEquivalentsExcedentes.push(gradoItem);
+                                totalCreditosExcedentes += gradoItem.creditos;
+                            } else {
+                                // Optativa dentro del límite
+                                badgeText = `Optativa nº ${optativasReconocidasCount} de ${MAX_OPTATIVAS_RECONOCIBLES}`;
+                                allGradoEquivalentsComputables.push(gradoItem);
+                                totalCreditosGradoComputables += gradoItem.creditos;
                             }
-                        });
-                        equivalencesContainerEl.appendChild(block);
+                        } else {
+                            // Obligatoria o Formación Básica: siempre computa
+                            allGradoEquivalentsComputables.push(gradoItem);
+                            totalCreditosGradoComputables += gradoItem.creditos;
+                        }
                     }
+                    
+                    block.innerHTML += `
+                        <div class="${cardClass}">
+                            <div class="${badgeClass}">${badgeText}</div>
+                            <div class="equivalence-content">
+                                <h4>${gradoItem.nombre || 'Nombre no disponible'}</h4>
+                                <p class="grado-details">(Grado: ${gradoItem.caracter}, ${gradoItem.creditos} ECTS)</p>
+                                ${extraNote}
+                            </div>
+                        </div>`;
                 });
-            } else {
-                noSelectedSubjectsEl.style.display = 'block';
-            }
+                equivalencesContainerEl.appendChild(block);
+            });
 
             // Renderizar resumen general
-            if (allGradoEquivalentsForSummary.length > 0) {
-                let summary = `<p>Con las asignaturas de Licenciatura seleccionadas, se te reconocerían las siguientes asignaturas del nuevo Grado en Filosofía:</p><ul>`;
-                allGradoEquivalentsForSummary.sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(g => { // Ordenar alfabéticamente
+            renderSummary({
+                computables: allGradoEquivalentsComputables,
+                excedentes: allGradoEquivalentsExcedentes,
+                optativasCount: optativasReconocidasCount,
+                creditosComputables: totalCreditosGradoComputables,
+                creditosExcedentes: totalCreditosExcedentes
+            });
+        }
+        
+        function renderSummary({ computables, excedentes, optativasCount, creditosComputables, creditosExcedentes }) {
+            if (computables.length === 0 && excedentes.length === 0) {
+                summaryTextEl.innerHTML = `<p>Aún no has seleccionado asignaturas de Licenciatura o las seleccionadas no tienen equivalencias directas definidas.</p>`;
+                return;
+            }
+            
+            // Contador visual de optativas
+            const optativasReconocidas = Math.min(optativasCount, MAX_OPTATIVAS_RECONOCIBLES);
+            let counterClass = 'ok';
+            if (optativasReconocidas === MAX_OPTATIVAS_RECONOCIBLES && excedentes.length === 0) counterClass = 'full';
+            if (excedentes.length > 0) counterClass = 'over';
+            
+            let summary = '';
+            
+            // Bloque de asignaturas computables
+            if (computables.length > 0) {
+                summary += `<p>Con las asignaturas de Licenciatura seleccionadas, se te reconocerían las siguientes asignaturas del nuevo Grado en Filosofía <strong>(computables para finalizar el Grado)</strong>:</p><ul>`;
+                // Ordenar: primero Formación Básica y Obligatoria, luego Optativas; alfabéticamente dentro
+                const ordenCaracter = { 'Formación Básica': 1, 'Obligatoria': 2, 'Optativa': 3 };
+                computables.sort((a, b) => {
+                    const ordA = ordenCaracter[a.caracter] || 99;
+                    const ordB = ordenCaracter[b.caracter] || 99;
+                    if (ordA !== ordB) return ordA - ordB;
+                    return a.nombre.localeCompare(b.nombre);
+                }).forEach(g => {
                     summary += `<li><strong>${g.nombre}</strong> (${g.caracter}, ${g.creditos} ECTS)</li>`;
                 });
                 summary += `</ul>`;
-                summary += `<div class="summary-credits">
-                                <p>Total ECTS de Grado reconocidos: <strong>${totalCreditosGradoReconocidos}</strong></p>
-                                <p>ECTS de Grado restantes por cursar: <strong>${TOTAL_CREDITOS_GRADO - totalCreditosGradoReconocidos}</strong> (de ${TOTAL_CREDITOS_GRADO} totales)</p>
-                            </div>`;
-                summaryTextEl.innerHTML = summary;
-            } else {
-                summaryTextEl.innerHTML = `<p>Aún no has seleccionado asignaturas de Licenciatura o las seleccionadas no tienen equivalencias directas definidas.</p>`;
             }
+            
+            // Bloque de excedentes
+            if (excedentes.length > 0) {
+                summary += `<div class="summary-warning">
+                    <strong>⚠️ Optativas excedentes (no computan para finalizar el Grado):</strong>
+                    <p style="margin-top: 6px;">Las siguientes ${excedentes.length} optativa(s) superan el máximo de <strong>${MAX_OPTATIVAS_RECONOCIBLES} optativas convalidables</strong>. Aparecerán en el certificado académico oficial, pero no se contabilizan para alcanzar los ${TOTAL_CREDITOS_GRADO} ECTS del Grado:</p>
+                    <ul style="margin-top: 8px;">`;
+                excedentes.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(g => {
+                    summary += `<li><strong>${g.nombre}</strong> (${g.caracter}, ${g.creditos} ECTS)</li>`;
+                });
+                summary += `</ul></div>`;
+            }
+            
+            // Bloque de créditos
+            summary += `<div class="summary-credits">
+                            <p>Optativas reconocidas: 
+                                <span class="optativas-counter ${counterClass}">${optativasReconocidas} / ${MAX_OPTATIVAS_RECONOCIBLES}</span>
+                                ${excedentes.length > 0 ? `<span style="font-weight: normal; font-size: 0.9rem; color: #856404;"> (+${excedentes.length} excedente${excedentes.length > 1 ? 's' : ''})</span>` : ''}
+                            </p>
+                            <p>Total ECTS de Grado computables: <strong>${creditosComputables}</strong></p>
+                            <p>ECTS de Grado restantes por cursar: <strong>${TOTAL_CREDITOS_GRADO - creditosComputables}</strong> (de ${TOTAL_CREDITOS_GRADO} totales)</p>
+                            ${creditosExcedentes > 0 ? `<p style="font-weight: normal; font-size: 0.95rem; color: #856404;">ECTS excedentes (solo certificado académico, no computables): ${creditosExcedentes}</p>` : ''}
+                        </div>`;
+            
+            summaryTextEl.innerHTML = summary;
         }
 
         // --- MANEJADORES DE EVENTOS Y LÓGICA DE INTERACCIÓN ---
@@ -630,7 +772,6 @@
                 printSummaryButton.addEventListener('click', printSummary);
             }
             
-            // Inicializar datos y primer renderizado
             filteredLicenciaturaSubjects = [...adaptationData];
             renderLicenciaturaSubjectList();
             renderResults(); 
