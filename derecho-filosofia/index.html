@@ -117,10 +117,9 @@ textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-siz
     <span class="eyebrow">Facultad de Filosofía · Secretaría de Estudiantes</span>
     <h1>Simulador de reconocimientos del Doble Grado en Derecho y Filosofía (DT57, 2026)</h1>
     <p class="lede">Marca las asignaturas que tienes superadas y verás cuáles se reconocerían en el plan de destino, según la tabla de equivalencias del plan 2026. El resultado es orientativo.</p>
-    <div class="modes" role="group" aria-label="Tipo de cambio">
+    <div class="modes" role="group" aria-label="Grado de destino">
       <button class="mode" id="m-dg-fil" data-mode="dg-fil" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot fil"></span>Grado en Filosofía</button>
       <button class="mode" id="m-dg-der" data-mode="dg-der" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot der"></span>Grado en Derecho</button>
-      <button class="mode" id="m-g-dg" data-mode="g-dg" aria-pressed="false"><span class="dot fil"></span><span class="dot der"></span>Grado en Filosofía o Derecho <span class="arrow">→</span> <span class="dot dg"></span>Doble Grado</button>
     </div>
   </header>
 
@@ -158,8 +157,7 @@ const PLAN = {
 };
 const MODES = {
   'dg-fil':{from:'dg',to:'fil'},
-  'dg-der':{from:'dg',to:'der'},
-  'g-dg':{from:'g',to:'dg'}
+  'dg-der':{from:'dg',to:'der'}
 };
 
 /* ---------- utilidades ---------- */
