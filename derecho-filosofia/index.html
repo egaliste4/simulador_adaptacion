@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Simulador Doble Grado Derecho-Filosofía</title>
+<title>Simulador Doble Grado Derecho-Filosofía DT57</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -115,7 +115,7 @@ textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-siz
 <div class="wrap">
   <header>
     <span class="eyebrow">Facultad de Filosofía · Secretaría de Estudiantes</span>
-    <h1>Simulador de reconocimientos del Doble Grado en Derecho y Filosofía (2026)</h1>
+    <h1>Simulador de reconocimientos del Doble Grado en Derecho y Filosofía (DT57, 2026)</h1>
     <p class="lede">Marca las asignaturas que tienes superadas y verás cuáles se reconocerían en el plan de destino, según la tabla de equivalencias del plan 2026. El resultado es orientativo.</p>
     <div class="modes" role="group" aria-label="Tipo de cambio">
       <button class="mode" id="m-dg-fil" data-mode="dg-fil" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot fil"></span>Grado en Filosofía</button>
@@ -140,7 +140,7 @@ textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-siz
   </div>
 
   <footer>
-    Fuente: Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (2026), con el Grado en Filosofía (0820) y el Grado en Derecho (080-M); estructura semestral del Anexo III; créditos exigidos según los planes de estudios publicados del Doble Grado (junio de 2026), del Grado en Filosofía (enero de 2026) y del Grado en Derecho. La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
+    Fuente: Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (DT57, 2026), con el Grado en Filosofía (0820) y el Grado en Derecho (080-M); estructura semestral del Anexo III; créditos exigidos según los planes de estudios publicados del Doble Grado (junio de 2026), del Grado en Filosofía (enero de 2026) y del Grado en Derecho. La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
   </footer>
 </div>
 
@@ -209,7 +209,7 @@ function renderOrigin(){
   const q = fold($('#q').value.trim());
   const f = MODES[mode].from;
   $('#orig-sub').textContent = f==='dg'
-    ? 'Plan de origen: Doble Grado en Derecho y Filosofía (2026). Agrupadas por curso y semestre.'
+    ? 'Plan de origen: Doble Grado en Derecho y Filosofía (DT57, 2026). Agrupadas por curso y semestre.'
     : 'Plan de origen: Grado en Filosofía (0820) y Grado en Derecho (080-M). Puedes marcar asignaturas de ambos.';
   let html='';
   for(const {plan,items} of originLists()){
@@ -290,7 +290,7 @@ function renderResult(){
   const pct = k => Math.max(0,Math.min(100,( (k==='OP'?opCount:tr[k]) / planTotal)*100));
 
   let h=`<h2 id="h-res" style="font-family:var(--f-display);font-size:21px;margin:0 0 2px">Resultado en el ${esc(PLAN[to].name)}</h2>
-  <p class="sub" style="color:var(--muted);font-size:13.5px;margin:0 0 12px">${to==='dg'?'Plan 2026 · 396 ECTS':(to==='fil'?'Grado en Filosofía (0820) · 240 ECTS':'Grado en Derecho (080-M) · 240 ECTS')}</p>
+  <p class="sub" style="color:var(--muted);font-size:13.5px;margin:0 0 12px">${to==='dg'?'Plan DT57 (2026) · 396 ECTS':(to==='fil'?'Grado en Filosofía (0820) · 240 ECTS':'Grado en Derecho (080-M) · 240 ECTS')}</p>
   <div class="big"><span class="num">${recTotal}</span><span class="of">ECTS reconocidos de ${planTotal}${known?` · faltan ${left}`:''}</span></div>
   <div class="bar" aria-hidden="true">${['FB','OB','OP','TFG'].map(k=>`<span style="width:${pct(k)}%;background:${KCOL[k]}"></span>`).join('')}</div>
   <div class="legend">${['FB','OB','OP','TFG'].map(k=>{
@@ -357,7 +357,7 @@ function copySummary(r,tr,recTotal,planTotal,opCount){
   r.rec.forEach(x=>L.push(`- ${x.cod} ${x.nom} (${x.ects} ECTS, ${x.car}) ← ${x.via.map(v=>v.cod+' '+v.nom).join('; ')}`));
   if(r.orphan.length){L.push('');L.push('Superadas sin equivalencia:');r.orphan.forEach(x=>L.push(`- ${x.cod} ${x.nom}`))}
   if(r.cross.length){L.push('');L.push('Para consultar en Secretaría:');r.cross.forEach(x=>L.push(`- ${x.cod} ${x.nom}`))}
-  L.push('');L.push('Fuente: Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (2026).');
+  L.push('');L.push('Fuente: Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (DT57, 2026).');
   const text=L.join('\n');
   const done=()=>toast('Resumen copiado');
   const fallback=()=>{$('#copybox').innerHTML=`<textarea class="fallback" id="fb" readonly></textarea>`;const t=$('#fb');t.value=text;t.focus();t.select();toast('Selecciona el texto y cópialo')};
