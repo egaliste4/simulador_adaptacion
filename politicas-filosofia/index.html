@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador Doble Grado Políticas-Filosofía</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>[hidden]{display:none!important} img{max-width:100%}</style>
+<style>
+/* Layout: two-pane worksheet — "lo que tengo superado" a la izquierda, "lo que se me reconoce" a la derecha (fijo al hacer scroll); en móvil se apilan y una barra inferior resume. Filosofía y Derecho llevan cada uno su color. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --line:#dfe3ea; --ink:#1b2230; --muted:#5d6779;
+  --fil:#2f5f8a; --fil-soft:#e6eef6; --der:#6b3d7a; --der-soft:#f1e8f4;
+  --ok:#2e6b48; --ok-soft:#e5f1e9; --warn:#8a5a12; --warn-soft:#f8eedb;
+  --accent:#1f3a5c; color-scheme:light;
+  --f-display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 96px}
+header{display:grid;gap:10px;margin-bottom:22px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:650;font-size:clamp(26px,4vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:68ch;margin:0}
+.modes{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+.mode{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left}
+.mode:hover{border-color:var(--muted)}
+.mode[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:600}
+.mode:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.arrow{color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.dot.dg{background:linear-gradient(90deg,var(--der) 50%,var(--fil) 50%)}
+.dot.fil{background:var(--fil)} .dot.der{background:var(--der)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.pane{min-width:0}
+.pane h2{font-family:var(--f-display);font-weight:650;font-size:21px;margin:0 0 4px}
+.pane .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search{flex:1 1 200px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.btn{appearance:none;font:inherit;font-size:13.5px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.group{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.ghead strong{font-weight:600;letter-spacing:.02em}
+.ghead .link{appearance:none;border:0;background:none;color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:2px}
+.plan-tag{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 0;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.plan-tag.fil{color:var(--fil)} .plan-tag.der{color:var(--der)}
+label.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 14px;border-top:1px solid var(--line);cursor:pointer}
+label.item:first-of-type{border-top:0}
+label.item:hover{background:color-mix(in srgb,var(--line) 35%,transparent)}
+label.item input{width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent)}
+.iname{min-width:0}
+.iname .n{display:block}
+.code{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.chips{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+.chip{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip.k-FB{color:var(--accent)} .chip.k-TFG{color:var(--warn)}
+.dot.side{width:7px;height:7px;margin-top:6px}
+aside.result{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+@media (max-width:860px){aside.result{position:static;max-height:none}}
+.big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.big .num{font-family:var(--f-display);font-size:44px;font-weight:650;line-height:1;font-variant-numeric:tabular-nums}
+.big .of{color:var(--muted)}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:color-mix(in srgb,var(--line) 70%,transparent);margin:12px 0 8px}
+.bar span{display:block;height:100%}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;font-size:13px;margin-bottom:14px}
+.legend div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:3px}
+.legend b{font-variant-numeric:tabular-nums;font-weight:600}
+.note{font-size:13px;color:var(--muted);background:color-mix(in srgb,var(--line) 30%,transparent);border-radius:8px;padding:10px 12px;margin:12px 0}
+.note.warn{background:var(--warn-soft);color:var(--ink)}
+.note ul{margin:6px 0 0;padding-left:18px}
+.rtools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 8px}
+.toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer}
+.rgroup h3{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;font-weight:600;display:flex;justify-content:space-between}
+.rrow{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.rrow .st{font-weight:700;text-align:center}
+.rrow.ok .st{color:var(--ok)} .rrow.pend .st{color:var(--muted)}
+.rrow.pend .rn{color:var(--muted)}
+.via{display:block;font-size:12.5px;color:var(--muted)}
+.via em{font-style:normal;background:var(--warn-soft);color:var(--warn);padding:0 5px;border-radius:3px;font-size:11.5px;margin-right:4px}
+.empty{color:var(--muted);font-size:13.5px;padding:8px 0}
+.mbar{display:none}
+@media (max-width:860px){
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border-top:1px solid var(--line);
+    padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));z-index:5}
+  .mbar b{font-variant-numeric:tabular-nums}
+}
+footer{margin-top:28px;color:var(--muted);font-size:12.5px;max-width:80ch}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13.5px;z-index:9}
+textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-size:12px;margin-top:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:width .25s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Facultad de Filosofía · Secretaría de Estudiantes</span>
+    <h1>Simulador de reconocimientos del Doble Grado en Ciencias Políticas y Filosofía</h1>
+    <p class="lede">Marca las asignaturas que tienes superadas y verás cuáles se reconocerían en el plan de destino, según la tabla de equivalencias vigente del Doble Grado (DT50). El resultado es orientativo.</p>
+    <div class="modes" role="group" aria-label="Tipo de cambio">
+      <button class="mode" id="m-dg-fil" data-mode="dg-fil" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot fil"></span>Grado en Filosofía</button>
+      <button class="mode" id="m-dg-der" data-mode="dg-der" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot der"></span>Grado en Ciencias Políticas</button>
+      <button class="mode" id="m-g-dg" data-mode="g-dg" aria-pressed="false"><span class="dot fil"></span><span class="dot der"></span>Grado en Filosofía o Ciencias Políticas <span class="arrow">→</span> <span class="dot dg"></span>Doble Grado</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="pane" aria-labelledby="h-orig">
+      <h2 id="h-orig">Asignaturas superadas</h2>
+      <p class="sub" id="orig-sub"></p>
+      <div class="tools">
+        <input class="search" id="q" type="search" placeholder="Buscar por nombre o código" aria-label="Buscar asignatura">
+        <button class="btn" id="clear" type="button">Desmarcar todo</button>
+        <button class="btn" id="example" type="button">Cargar ejemplo</button>
+      </div>
+      <div id="orig"></div>
+    </section>
+
+    <aside class="result" id="result" aria-live="polite" aria-labelledby="h-res"></aside>
+  </div>
+
+  <footer>
+    Fuente: tabla de equivalencias del Doble Grado en Ciencias Políticas y Filosofía (DT50) con el Grado en Filosofía (0820) y el Grado en Ciencias Políticas (0838), versión modificada en la Sección de Grados el 12/05/2021; créditos exigidos según su cuadro resumen y el plan de estudios del Grado en Filosofía (enero de 2026). La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
+  </footer>
+</div>
+
+<div class="mbar" id="mbar"><span><b id="mb-n">0</b> ECTS reconocidos</span><button class="btn primary" type="button" id="mb-go">Ver resultado</button></div>
+
+<script>
+const DATA = [{"id":"dg01","cod":"","nom":"La formación de la teoría política","ects":6,"sem":"1-1","car":"FB","fil":{"id":"801294","cod":"801294","nom":"Literatura Contemporánea","ects":6,"sem":"1-2","car":"FB","misma":false},"der":{"id":"cp-la-formacion-de-la-teoria-politica","cod":"","nom":"La formación de la teoría política","ects":6,"sem":"1-1","car":"FB","misma":true}},{"id":"dg02","cod":"","nom":"Ciencia Política I: Instituciones Políticas y estructuras de decisión","ects":6,"sem":"1-1","car":"FB","fil":{"id":"801300","cod":"801300","nom":"Historia del Arte Contemporáneo","ects":6,"sem":"2-1","car":"FB","misma":false},"der":{"id":"cp-ciencia-politica-i-instituciones-politic","cod":"","nom":"Ciencia Política I: Instituciones Políticas y estructuras de decisión","ects":6,"sem":"1-1","car":"FB","misma":true}},{"id":"dg03","cod":"","nom":"Historia política y social del mundo contemporáneo","ects":6,"sem":"1-1","car":"FB","der":{"id":"cp-historia-politica-y-social-del-mundo-con","cod":"","nom":"Historia política y social del mundo contemporáneo","ects":6,"sem":"1-1","car":"FB","misma":true}},{"id":"dg04","cod":"","nom":"Historia de la Filosofía Antigua","ects":6,"sem":"1-1","car":"OB","fil":{"id":"801298","cod":"801298","nom":"Historia de la Filosofía Antigua","ects":6,"sem":"1-1","car":"OB","misma":true}},{"id":"dg05","cod":"","nom":"Antropología Filosófica I","ects":6,"sem":"1-1","car":"FB","fil":{"id":"801292","cod":"801292","nom":"Antropología Filosófica I","ects":6,"sem":"1-1","car":"FB","misma":true},"der":{"id":"cp-identidad-politica-y-territorio","cod":"","nom":"Identidad política y territorio","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg06","cod":"","nom":"Filosofía Política I","ects":6,"sem":"1-1","car":"FB","fil":{"id":"801291","cod":"801291","nom":"Filosofía Política I","ects":6,"sem":"1-1","car":"FB","misma":true},"der":{"id":"cp-historia-del-poder","cod":"","nom":"Historia del poder","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg07","cod":"","nom":"Teorías y formas políticas modernas y contemporáneas","ects":6,"sem":"1-2","car":"FB","fil":{"id":"801290","cod":"801290","nom":"Historia del Mundo Contemporáneo","ects":6,"sem":"1-1","car":"FB","misma":false},"der":{"id":"cp-teorias-y-formas-politicas-modernas-y-co","cod":"","nom":"Teorías y formas políticas modernas y contemporáneas","ects":6,"sem":"1-2","car":"FB","misma":true}},{"id":"dg08","cod":"","nom":"Historia Política del mundo actual","ects":6,"sem":"1-2","car":"FB","fil":{"id":"801295","cod":"801295","nom":"Psicología Básica","ects":6,"sem":"1-2","car":"FB","misma":false},"der":{"id":"cp-historia-politica-del-mundo-actual","cod":"","nom":"Historia Política del mundo actual","ects":6,"sem":"1-2","car":"FB","misma":true}},{"id":"dg09","cod":"","nom":"Ciencia Política II: Actores y procesos políticos","ects":6,"sem":"1-2","car":"FB","der":{"id":"cp-ciencia-politica-ii-actores-y-procesos-p","cod":"","nom":"Ciencia Política II: Actores y procesos políticos","ects":6,"sem":"1-2","car":"FB","misma":true}},{"id":"dg10","cod":"","nom":"Ontología Fundamental","ects":6,"sem":"1-2","car":"FB","fil":{"id":"801293","cod":"801293","nom":"Ontología Fundamental","ects":6,"sem":"1-1","car":"FB","misma":true}},{"id":"dg11","cod":"","nom":"Historia de la Filosofía Medieval","ects":6,"sem":"1-2","car":"OB","fil":{"id":"801299","cod":"801299","nom":"Historia de la Filosofía Medieval","ects":6,"sem":"1-2","car":"OB","misma":true}},{"id":"dg12","cod":"","nom":"Antropología Filosófica II","ects":6,"sem":"1-2","car":"OB","fil":{"id":"801297","cod":"801297","nom":"Antropología Filosófica II","ects":6,"sem":"1-2","car":"OB","misma":true}},{"id":"dg13","cod":"","nom":"Introducción a la Sociología","ects":6,"sem":"2-1","car":"FB","fil":{"id":"801305","cod":"801305","nom":"Alemán básico para filósofos","ects":6,"sem":"2-2","car":"FB","misma":false},"der":{"id":"cp-introduccion-a-la-sociologia","cod":"","nom":"Introducción a la Sociología","ects":6,"sem":"2-1","car":"FB","misma":true}},{"id":"dg14","cod":"","nom":"Introducción al Derecho Público","ects":6,"sem":"2-1","car":"FB","der":{"id":"cp-introduccion-al-derecho-publico","cod":"","nom":"Introducción al Derecho Público","ects":6,"sem":"2-1","car":"FB","misma":true}},{"id":"dg15","cod":"","nom":"Economía Política I","ects":6,"sem":"2-1","car":"FB","der":{"id":"cp-economia-politica-i","cod":"","nom":"Economía Política I","ects":6,"sem":"2-1","car":"OB","misma":true}},{"id":"dg16","cod":"","nom":"Ética I","ects":6,"sem":"2-1","car":"FB","fil":{"id":"801301","cod":"801301","nom":"Ética I","ects":6,"sem":"2-1","car":"FB","misma":true},"der":{"id":"cp-cultura-de-paz-y-resolucion-de-conflicto","cod":"","nom":"Cultura de paz y resolución de conflictos","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg17","cod":"","nom":"Historia de la Filosofía Moderna","ects":6,"sem":"2-1","car":"OB","fil":{"id":"801307","cod":"801307","nom":"Historia de la Filosofía Moderna","ects":6,"sem":"2-2","car":"OB","misma":true},"der":{"id":"cp-historia-de-los-movimientos-politicos-y-","cod":"","nom":"Historia de los Movimientos Políticos y Sociales","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg18","cod":"","nom":"Estética","ects":6,"sem":"2-1","car":"FB","fil":{"id":"801296","cod":"801296","nom":"Estética","ects":6,"sem":"1-2","car":"FB","misma":true}},{"id":"dg19","cod":"","nom":"Derecho Constitucional","ects":6,"sem":"2-2","car":"OB","der":{"id":"cp-derecho-constitucional","cod":"","nom":"Derecho Constitucional","ects":6,"sem":"2-2","car":"FB","misma":true}},{"id":"dg20","cod":"","nom":"Economía Política II","ects":6,"sem":"2-2","car":"OB","fil":{"id":"801323","cod":"801323","nom":"Seminario de Filosofía Contemporánea","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},"der":{"id":"cp-economia-politica-ii","cod":"","nom":"Economía Política II","ects":6,"sem":"2-2","car":"OB","misma":true}},{"id":"dg21","cod":"","nom":"Estructura Social y procesos sociales","ects":6,"sem":"2-2","car":"FB","der":{"id":"cp-estructura-social-y-procesos-sociales","cod":"","nom":"Estructura Social y procesos sociales","ects":6,"sem":"2-2","car":"FB","misma":true}},{"id":"dg22","cod":"","nom":"Filosofía Política II","ects":6,"sem":"2-2","car":"OB","fil":{"id":"801342","cod":"801342","nom":"Filosofía Política II","ects":6,"sem":"3-2","car":"OB","misma":true},"der":{"id":"cp-ideologias-politicas","cod":"","nom":"Ideologías Políticas","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg23","cod":"","nom":"Filosofía del Siglo XIX","ects":6,"sem":"2-2","car":"OB","fil":{"id":"801322","cod":"801322","nom":"Filosofía del Siglo XIX","ects":6,"sem":"3-2","car":"OB","misma":true}},{"id":"dg24","cod":"","nom":"Ética II","ects":6,"sem":"2-2","car":"OB","fil":{"id":"801308","cod":"801308","nom":"Ética II","ects":6,"sem":"2-2","car":"OB","misma":true},"der":{"id":"cp-innovacion-democratica-y-participacion-m","cod":"","nom":"Innovación democrática y participación multinivel","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg25","cod":"","nom":"Lógica I","ects":6,"sem":"3-1","car":"OB","fil":{"id":"801304","cod":"801304","nom":"Lógica I","ects":6,"sem":"2-1","car":"OB","misma":true}},{"id":"dg26","cod":"","nom":"Filosofía de la Naturaleza","ects":6,"sem":"3-1","car":"OB","fil":{"id":"801303","cod":"801303","nom":"Filosofía de la Naturaleza","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg27","cod":"","nom":"Teoría del Conocimiento I","ects":6,"sem":"3-1","car":"OB","fil":{"id":"801302","cod":"801302","nom":"Teoría del Conocimiento I","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg28","cod":"","nom":"Relaciones Internacionales I: Actores y procesos","ects":6,"sem":"3-1","car":"OB","fil":{"id":"801328","cod":"801328","nom":"Teoría de la Sociedad","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},"der":{"id":"cp-relaciones-internacionales-i-actores-y-p","cod":"","nom":"Relaciones Internacionales I: Actores y procesos","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg29","cod":"","nom":"Análisis de datos en Ciencias Políticas","ects":6,"sem":"3-2","car":"OB","der":{"id":"cp-analisis-de-datos-en-ciencias-politicas","cod":"","nom":"Análisis de datos en Ciencias Políticas","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg30","cod":"","nom":"Sistema Político Español","ects":6,"sem":"3-1","car":"OB","der":{"id":"cp-sistema-politico-espanol","cod":"","nom":"Sistema Político Español","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg31","cod":"","nom":"Sistema de la UE","ects":6,"sem":"4-1","car":"OB","der":{"id":"cp-sistema-de-la-ue","cod":"","nom":"Sistema de la UE","ects":6,"sem":"3-2","car":"OB","misma":true}},{"id":"dg32","cod":"","nom":"Política Comparada","ects":6,"sem":"3-2","car":"OB","fil":{"id":"801311","cod":"801311","nom":"Filosofía de la Cultura","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},"der":{"id":"cp-politica-comparada","cod":"","nom":"Política Comparada","ects":6,"sem":"3-2","car":"OB","misma":true}},{"id":"dg33","cod":"","nom":"Métodos y técnicas de investigación en Ciencia Política","ects":6,"sem":"3-1","car":"OB","der":{"id":"cp-metodos-y-tecnicas-de-investigacion-en-c","cod":"","nom":"Métodos y técnicas de investigación en Ciencia Política","ects":6,"sem":"3-2","car":"OB","misma":true}},{"id":"dg34","cod":"","nom":"Lógica II","ects":6,"sem":"3-2","car":"OB","fil":{"id":"801309","cod":"801309","nom":"Lógica II","ects":6,"sem":"2-2","car":"OB","misma":true}},{"id":"dg35","cod":"","nom":"Teoría del Conocimiento II","ects":6,"sem":"3-2","car":"OB","fil":{"id":"801306","cod":"801306","nom":"Teoría del Conocimiento II","ects":6,"sem":"3-2","car":"OB","misma":true}},{"id":"dg36","cod":"","nom":"Filosofía Española Contemporánea","ects":6,"sem":"3-2","car":"OB","fil":{"id":"801341","cod":"801341","nom":"Filosofía Española Contemporánea","ects":6,"sem":"4-1","car":"OB","misma":true},"der":{"id":"cp-teorias-politicas-en-la-espana-moderna-y","cod":"","nom":"Teorías Políticas en la España Moderna y Contemporánea","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg37","cod":"","nom":"Metafísica I","ects":6,"sem":"4-1","car":"OB","fil":{"id":"801312","cod":"801312","nom":"Metafísica I","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg38","cod":"","nom":"Filosofía del Lenguaje I","ects":6,"sem":"4-1","car":"OB","fil":{"id":"801334","cod":"801334","nom":"Filosofía del Lenguaje I","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg39","cod":"","nom":"Perspectivas de la Estética Contemporánea","ects":6,"sem":"4-1","car":"OB","fil":{"id":"801329","cod":"801329","nom":"Perspectivas de la Estética Contemporánea","ects":6,"sem":"3-1","car":"OB","misma":true}},{"id":"dg40","cod":"","nom":"Teoría y práctica de las democracias","ects":6,"sem":"4-1","car":"OB","der":{"id":"cp-teoria-y-practica-de-las-democracias","cod":"","nom":"Teoría y práctica de las democracias","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg41","cod":"","nom":"Teoría de la Administración Pública","ects":6,"sem":"4-1","car":"OB","der":{"id":"cp-teoria-de-la-administracion-publica","cod":"","nom":"Teoría de la Administración Pública","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg42","cod":"","nom":"Análisis del comportamiento político y electoral","ects":6,"sem":"4-1","car":"OB","der":{"id":"cp-analisis-del-comportamiento-politico-y-e","cod":"","nom":"Análisis del comportamiento político y electoral","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg43","cod":"","nom":"Filosofía del Lenguaje II","ects":6,"sem":"4-2","car":"OB","fil":{"id":"801343","cod":"801343","nom":"Filosofía del Lenguaje II","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg44","cod":"","nom":"Metafísica II","ects":6,"sem":"4-2","car":"OB","fil":{"id":"801340","cod":"801340","nom":"Metafísica II","ects":6,"sem":"3-2","car":"OB","misma":true}},{"id":"dg45","cod":"","nom":"Corrientes Actuales de la Filosofía I","ects":6,"sem":"4-2","car":"OB","fil":{"id":"801345","cod":"801345","nom":"Corrientes Actuales de la Filosofía I","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg46","cod":"","nom":"Marco Jurídico de las Relaciones Laborales","ects":6,"sem":"4-2","car":"OB","der":{"id":"cp-marco-juridico-de-las-relaciones-laboral","cod":"","nom":"Marco Jurídico de las Relaciones Laborales","ects":6,"sem":"4-2","car":"OB","misma":true}},{"id":"dg47","cod":"","nom":"Derecho Administrativo","ects":6,"sem":"4-2","car":"OB","der":{"id":"cp-derecho-administrativo","cod":"","nom":"Derecho Administrativo","ects":6,"sem":"4-2","car":"OB","misma":true}},{"id":"dg48","cod":"","nom":"Sistemas políticos de Europa","ects":6,"sem":"4-2","car":"OB","fil":{"id":"801325","cod":"801325","nom":"Teoría de la Racionalidad Práctica","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},"der":{"id":"cp-sistemas-politicos-de-europa","cod":"","nom":"Sistemas políticos de Europa","ects":6,"sem":"4-2","car":"OB","misma":true}},{"id":"dg49","cod":"","nom":"Filosofía de la Mente","ects":6,"sem":"5-1","car":"OB","fil":{"id":"801344","cod":"801344","nom":"Filosofía de la Mente","ects":6,"sem":"4-2","car":"OB","misma":true}},{"id":"dg50","cod":"","nom":"Corrientes Actuales de la Filosofía II","ects":6,"sem":"5-1","car":"OB","fil":{"id":"801347","cod":"801347","nom":"Corrientes Actuales de la Filosofía II","ects":6,"sem":"4-1","car":"OB","misma":true},"der":{"id":"cp-teoria-politica-contemporanea","cod":"","nom":"Teoría Política Contemporánea","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg51","cod":"","nom":"Filosofía de la Ciencia I","ects":6,"sem":"5-1","car":"OB","fil":{"id":"801346","cod":"801346","nom":"Filosofía de la Ciencia I","ects":6,"sem":"4-1","car":"OB","misma":true}},{"id":"dg52","cod":"","nom":"Sociología Política","ects":6,"sem":"5-1","car":"OB","der":{"id":"cp-sociologia-politica","cod":"","nom":"Sociología Política","ects":6,"sem":"5-1","car":"OB","misma":true}},{"id":"dg53","cod":"","nom":"Políticas Públicas I","ects":6,"sem":"5-1","car":"OB","der":{"id":"cp-politicas-publicas-i","cod":"","nom":"Políticas Públicas I","ects":6,"sem":"5-1","car":"OB","misma":true}},{"id":"dg54","cod":"","nom":"Geografía política","ects":6,"sem":"5-1","car":"OB","der":{"id":"cp-geografia-politica","cod":"","nom":"Geografía política","ects":6,"sem":"5-1","car":"OB","misma":true}},{"id":"dg55","cod":"","nom":"Economía Pública y Gestión Presupuestaria","ects":6,"sem":"5-2","car":"OB","der":{"id":"cp-economia-publica-y-gestion-presupuestari","cod":"","nom":"Economía Pública y Gestión Presupuestaria","ects":6,"sem":"5-2","car":"OB","misma":true}},{"id":"dg56","cod":"","nom":"Políticas Públicas II","ects":6,"sem":"5-2","car":"OB","der":{"id":"cp-politicas-publicas-ii","cod":"","nom":"Políticas Públicas II","ects":6,"sem":"5-2","car":"OB","misma":true}},{"id":"dg57","cod":"","nom":"Filosofía de la Ciencia II","ects":6,"sem":"5-2","car":"OB","fil":{"id":"801348","cod":"801348","nom":"Filosofía de la Ciencia II","ects":6,"sem":"4-2","car":"OB","misma":true}},{"id":"dg58","cod":"","nom":"Partidos y sistemas de partidos","ects":6,"sem":"5-2","car":"OB","fil":{"id":"801321","cod":"801321","nom":"Seminario de Filosofía Moderna","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},"der":{"id":"cp-partidos-y-sistemas-de-partidos","cod":"","nom":"Partidos y sistemas de partidos","ects":6,"sem":"5-2","car":"OB","misma":true}},{"id":"dg59","cod":"","nom":"Teorías de la Libertad","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801314","cod":"801314","nom":"Teorías de la Libertad","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-politica-y-comunicacion","cod":"","nom":"Política y comunicación","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg60","cod":"","nom":"Filosofía de la Historia","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801318","cod":"801318","nom":"Filosofía de la Historia","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-antropologia-politica","cod":"","nom":"Antropología Política","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg61","cod":"","nom":"Teoría de los Derechos Humanos","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801331","cod":"801331","nom":"Teoría de los Derechos Humanos","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-derechos-humanos-y-ciudadania","cod":"","nom":"Derechos humanos y ciudadanía","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg62","cod":"","nom":"Teoría y Crítica Feministas","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801332","cod":"801332","nom":"Teoría y Crítica Feministas","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-genero-y-politica","cod":"","nom":"Género y política","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg63","cod":"","nom":"Trabajo Fin de Grado (Filosofía)","ects":6,"sem":"5-2","car":"TFG","fil":{"id":"801349","cod":"801349","nom":"Trabajo Fin de Grado (Filosofía)","ects":6,"sem":"4-2","car":"TFG","misma":true}},{"id":"dg64","cod":"","nom":"Trabajo Fin de Grado (CC. Políticas)","ects":6,"sem":"5-2","car":"TFG","der":{"id":"cp-trabajo-fin-de-grado-cc-politicas","cod":"","nom":"Trabajo Fin de Grado (CC. Políticas)","ects":6,"sem":"4-2","car":"TFG","misma":true}},{"id":"dg65","cod":"","nom":"Estética y Semiótica","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801330","cod":"801330","nom":"Estética y Semiótica","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-marketing-politico-y-campanas-electorale","cod":"","nom":"Marketing Político y Campañas electorales","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg66","cod":"","nom":"Filosofía de la Acción","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801310","cod":"801310","nom":"Filosofía de la Acción","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-agentes-sociales-conflicto-y-negociacion","cod":"","nom":"Agentes Sociales, conflicto y negociación colectiva","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg67","cod":"","nom":"Filosofía de la Religión","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801315","cod":"801315","nom":"Filosofía de la Religión","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-movimientos-sociales-y-globalizacion","cod":"","nom":"Movimientos Sociales y Globalización","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg68","cod":"","nom":"Ciencia, Tecnología y Sociedad","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801327","cod":"801327","nom":"Ciencia, Tecnología y Sociedad","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-economia-mundial-y-ue","cod":"","nom":"Economía Mundial y UE","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}},{"id":"dg69","cod":"","nom":"Teorías de la Materia y de la Vida","ects":6,"sem":"5-2","car":"OP","fil":{"id":"801317","cod":"801317","nom":"Teorías de la Materia y de la Vida","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},"der":{"id":"cp-tecnica-parlamentaria","cod":"","nom":"Técnica Parlamentaria","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}}];
+
+const KIND = {FB:'Formación básica',OB:'Obligatoria',OP:'Optativa',TFG:'Trabajo Fin de Grado'};
+const KCOL = {FB:'var(--accent)',OB:'var(--ok)',OP:'var(--warn)',TFG:'var(--der)'};
+const PLAN = {
+  dg:{name:'Doble Grado en Ciencias Políticas y Filosofía',short:'Doble Grado'},
+  fil:{name:'Grado en Filosofía',short:'Filosofía'},
+  der:{name:'Grado en Ciencias Políticas',short:'Ciencias Políticas'}
+};
+const MODES = {
+  'dg-fil':{from:'dg',to:'fil'},
+  'dg-der':{from:'dg',to:'der'},
+  'g-dg':{from:'g',to:'dg'}
+};
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+function semKey(s){
+  if(/^\d-\d$/.test(s)){const [c,q]=s.split('-').map(Number);return c*10+q}
+  if(/^\d-1\/2$/.test(s)) return Number(s[0])*10+5; // optativas de un curso
+  return 999; // optativas sin curso fijo (3/4-1/2)
+}
+function semLabel(s){
+  if(/^\d-\d$/.test(s)){const [c,q]=s.split('-');return `${c}.º curso · ${q==='1'?'1.er':'2.º'} semestre`}
+  return 'Optativas';
+}
+function store(k,v){try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||'null'); localStorage.setItem(k,JSON.stringify(v)) }catch(e){ return null }}
+
+/* Listas de asignaturas por plan */
+const DG = DATA.map(r=>({id:r.id,cod:r.cod,nom:r.nom,ects:r.ects,sem:r.sem,car:r.car,row:r}));
+function single(k){
+  const m=new Map();
+  DATA.forEach(r=>{ if(r[k] && !m.has(r[k].id)) m.set(r[k].id,{...r[k],plan:k,rows:[]}); if(r[k]) m.get(r[k].id).rows.push(r) });
+  return [...m.values()];
+}
+const FIL = single('fil'), DER = single('der');
+/* Obligatorias del Grado en Ciencias Políticas fuera de la tabla: pendiente de su plan de estudios */
+const DER_EXTRA = [];
+
+/* ---------- estado ---------- */
+let mode = store('sim-mode') || 'dg-fil';
+if(!MODES[mode]) mode='dg-fil';
+let sel = {}; // por modo: Set de códigos
+for(const m in MODES){ sel[m] = new Set(store('sim-sel-'+m)||[]) }
+let onlyPending = false;
+let part = {}; // créditos de participación (6 ECTS) por modo
+for(const m in MODES){ part[m] = !!store('sim-part-'+m) }
+
+/* ---------- origen ---------- */
+function originLists(){
+  if(MODES[mode].from==='dg') return [{plan:'dg',items:DG}];
+  return [{plan:'fil',items:FIL},{plan:'der',items:DER}];
+}
+function renderOrigin(){
+  const q = fold($('#q').value.trim());
+  const f = MODES[mode].from;
+  $('#orig-sub').textContent = f==='dg'
+    ? 'Plan de origen: Doble Grado en Ciencias Políticas y Filosofía (DT50). Agrupadas por curso y semestre.'
+    : 'Plan de origen: Grado en Filosofía (0820) y Grado en Ciencias Políticas (0838). Puedes marcar asignaturas de ambos.';
+  let html='';
+  for(const {plan,items} of originLists()){
+    const vis = items.filter(it=>!q || fold(it.nom).includes(q) || it.cod.includes(q));
+    if(f==='g') html+=`<div class="plan-tag ${plan}"><span class="dot ${plan}"></span>${PLAN[plan].name}</div>`;
+    if(!vis.length){ html+=`<p class="empty">Ninguna asignatura coincide con la búsqueda.</p>`; continue }
+    const groups=new Map();
+    vis.slice().sort((a,b)=>semKey(a.sem)-semKey(b.sem)).forEach(it=>{const g=semLabel(it.sem);if(!groups.has(g))groups.set(g,[]);groups.get(g).push(it)});
+    for(const [g,list] of groups){
+      const gid = plan+'|'+g;
+      html+=`<div class="group"><div class="ghead"><strong>${esc(g)}</strong>${g!=='Optativas'?`<button class="link" type="button" data-all="${esc(gid)}">Marcar el semestre</button>`:''}</div>`;
+      for(const it of list){
+        const id=`c-${mode}-${it.id}`;
+        html+=`<label class="item" for="${id}" data-g="${esc(gid)}">
+          <input type="checkbox" id="${id}" value="${it.id}" ${sel[mode].has(it.id)?'checked':''}>
+          <span class="iname"><span class="n">${esc(it.nom)}</span><span class="code">${it.cod}</span></span>
+          <span class="chips"><span class="chip k-${it.car}">${it.car}</span><span class="chip">${it.ects} ECTS</span></span>
+        </label>`;
+      }
+      html+=`</div>`;
+    }
+  }
+  $('#orig').innerHTML=html;
+}
+
+/* ---------- cálculo ---------- */
+function compute(){
+  const S = sel[mode], {from,to} = MODES[mode];
+  const out = {rec:[], pend:[], orphan:[], cross:[]};
+  if(from==='dg'){
+    const target = to==='fil'?FIL:[...DER,...DER_EXTRA];
+    for(const t of target){
+      const via = t.rows.filter(r=>S.has(r.id));
+      (via.length?out.rec:out.pend).push({...t,via:via.map(r=>({nom:r.nom,cod:r.cod,cross:!t.misma}))});
+    }
+    // superadas sin equivalencia en el destino
+    DG.forEach(d=>{ if(S.has(d.id) && !d.row[to]) out.orphan.push(d) });
+  } else {
+    for(const d of DG){
+      const via=[];
+      for(const k of ['fil','der']){
+        const s=d.row[k];
+        if(s && S.has(s.id)){
+          if(s.misma) via.push({nom:s.nom,cod:s.cod,plan:k});
+        }
+      }
+      (via.length?out.rec:out.pend).push({...d,via});
+    }
+    // superadas que la tabla solo empareja con otra asignatura distinta
+    for(const it of [...FIL,...DER]){
+      if(S.has(it.id) && !it.misma) out.cross.push(it);
+    }
+  }
+  return out;
+}
+function totals(list){const t={FB:0,OB:0,OP:0,TFG:0};list.forEach(x=>t[x.car]+=x.ects);return t}
+
+/* ---------- resultado ---------- */
+function renderResult(){
+  const {to} = MODES[mode];
+  const r = compute();
+  const tr = totals(r.rec), tp = totals(r.pend);
+  // Requisitos según los planes publicados:
+  //  Doble Grado DT50 (cuadro resumen): FB 90 · OB 258 · OP 6 · TFG 12 = 366
+  //  Grado en Filosofía: FB 60 · OB 138 · OP 36 · TFG 6 = 240
+  //  Grado en Ciencias Políticas: 240; optativas sin confirmar (la tabla no cuadra con el plan 2023)
+  const opSplit={der:0,fil:0};
+  r.rec.filter(x=>x.car==='OP').forEach(x=>{opSplit[(x.row&&x.row.der)?'der':'fil']+=x.ects});
+  const REQOP = {dg:6, fil:36, der:null}[to];
+  const req = to==='dg' ? {FB:90,OB:258,OP:6,TFG:12} : {FB:tr.FB+tp.FB,OB:tr.OB+tp.OB,TFG:tr.TFG+tp.TFG,OP:REQOP};
+  // En los grados, 6 ECTS de créditos de participación pueden sustituir a una optativa
+  const pc = (to!=='dg' && part[mode]) ? 6 : 0;
+  const opCount = to==='dg' ? Math.min(tr.OP,6) : (REQOP ? Math.min(tr.OP+pc,REQOP) : tr.OP+pc);
+  const recTotal = tr.FB+tr.OB+tr.TFG+opCount;
+  const planTotal = to==='dg' ? 366 : 240;
+  const known = to!=='der';
+  const left = planTotal-recTotal;
+  const pct = k => Math.max(0,Math.min(100,( (k==='OP'?opCount:tr[k]) / planTotal)*100));
+
+  let h=`<h2 id="h-res" style="font-family:var(--f-display);font-size:21px;margin:0 0 2px">Resultado en el ${esc(PLAN[to].name)}</h2>
+  <p class="sub" style="color:var(--muted);font-size:13.5px;margin:0 0 12px">${to==='dg'?'Plan DT50 · 366 ECTS':(to==='fil'?'Grado en Filosofía (0820) · 240 ECTS':'Grado en Ciencias Políticas (0838) · 240 ECTS')}</p>
+  <div class="big"><span class="num">${recTotal}</span><span class="of">ECTS reconocidos de ${planTotal}${known?` · faltan ${left}`:''}</span></div>
+  <div class="bar" aria-hidden="true">${['FB','OB','OP','TFG'].map(k=>`<span style="width:${pct(k)}%;background:${KCOL[k]}"></span>`).join('')}</div>
+  <div class="legend">${['FB','OB','OP','TFG'].map(k=>{
+      const v = k==='OP'?opCount:tr[k];
+      const of = req[k]==null?'':` / ${req[k]}`;
+      return `<div><span><span class="dot" style="background:${KCOL[k]};margin-right:6px"></span>${KIND[k]}</span><b>${v}${of}</b></div>`}).join('')}</div>`;
+
+  if(to==='dg'){
+    let t=`El Doble Grado exige 6 ECTS optativos, es decir, una optativa. `;
+    t+= tr.OP>6 ? `Llevas ${tr.OP}; cuentan 6.` : (tr.OP>=6 ? 'La tendrías cubierta.' : 'Todavía no tienes ninguna reconocida.');
+    h+=`<div class="note">${t}</div>`;
+  }
+  if(to!=='dg'){
+    const totOP = tr.OP+pc;
+    const f=REQOP?Math.max(0,REQOP-opCount):0;
+    const txt = REQOP
+      ? `El ${esc(PLAN[to].name)} exige ${REQOP} ECTS optativos. ${totOP>REQOP?`Llevas ${totOP}; cuentan ${REQOP}.`:(f?`Te faltarían ${f} ECTS optativos.`:'Los tendrías completos.')}`
+      : `Llevas ${totOP} ECTS optativos reconocidos. Todavía no está confirmado cuántos exige el Grado en Ciencias Políticas, así que no se calcula lo que falta para terminar.`;
+    h+=`<div class="note">${txt}
+      <label class="toggle" for="part" style="margin-top:8px;color:var(--ink)"><input type="checkbox" id="part" ${part[mode]?'checked':''}> Tengo reconocidos 6 ECTS de créditos de participación (cuentan como una optativa)</label></div>`;
+  }
+
+  if(r.cross.length) h+=`<div class="note warn"><strong>Sin reconocimiento automático.</strong> La tabla empareja estas asignaturas con otras distintas del Doble Grado, y ese emparejamiento está pensado para quien sale del Doble Grado. Consulta en la Secretaría de Estudiantes:<ul>${r.cross.map(c=>`<li>${esc(c.nom)} <span class="code">${c.cod}</span></li>`).join('')}</ul></div>`;
+  if(r.orphan.length) h+=`<div class="note warn"><strong>Sin equivalencia en el ${esc(PLAN[to].name)}:</strong><ul>${r.orphan.map(c=>`<li>${esc(c.nom)} <span class="code">${c.cod}</span></li>`).join('')}</ul></div>`;
+
+  h+=`<div class="rtools"><label class="toggle" for="onlyp"><input type="checkbox" id="onlyp" ${onlyPending?'checked':''}> Ver solo lo pendiente</label><span style="flex:1"></span><button class="btn" type="button" id="copy">Copiar resumen</button></div><div id="copybox"></div>`;
+
+  const all = [...r.rec.map(x=>({...x,ok:true})),...r.pend.map(x=>({...x,ok:false}))]
+    .filter(x=>!(onlyPending && x.ok))
+    .filter(x=>!(onlyPending && x.car==='OP' && to==='dg' && opCount>=6))
+    .filter(x=>!(onlyPending && x.car==='OP' && to!=='dg' && REQOP && opCount>=REQOP))
+    .sort((a,b)=>semKey(a.sem)-semKey(b.sem) || a.nom.localeCompare(b.nom,'es'));
+  const groups=new Map();
+  all.forEach(x=>{const g=semLabel(x.sem);if(!groups.has(g))groups.set(g,[]);groups.get(g).push(x)});
+  if(!all.length) h+=`<p class="empty">No queda nada pendiente entre las asignaturas de la tabla.</p>`;
+  for(const [g,list] of groups){
+    const done=list.filter(x=>x.ok).reduce((s,x)=>s+x.ects,0);
+    const optLabel = g==='Optativas' ? ({dg:' · elige una (6 ECTS)',fil:' · 36 ECTS en total',der:' · según tu plan'}[to]) : '';
+    h+=`<div class="rgroup"><h3><span>${esc(g)}${optLabel}</span><span>${done} ECTS reconocidos</span></h3>`;
+    for(const x of list){
+      const via = x.ok ? x.via.map(v=>`<span class="via">${v.cross?'<em>otra asignatura</em>':''}por ${esc(v.nom)} <span class="code">${v.cod}</span>${v.plan?` · ${PLAN[v.plan].short}`:''}</span>`).join('')
+        : (x.noSource ? '<span class="via">No tiene equivalente en el Doble Grado: hay que cursarla</span>' : '');
+      h+=`<div class="rrow ${x.ok?'ok':'pend'}"><span class="st" aria-label="${x.ok?'Reconocida':'Pendiente'}">${x.ok?'✓':'○'}</span>
+        <span class="rn">${esc(x.nom)} <span class="code">${x.cod}</span>${via}</span>
+        <span class="chips"><span class="chip k-${x.car}">${x.car}</span><span class="chip">${x.ects}</span></span></div>`;
+    }
+    h+=`</div>`;
+  }
+  $('#result').innerHTML=h;
+  $('#mb-n').textContent=recTotal;
+
+  $('#onlyp').onchange=e=>{onlyPending=e.target.checked;renderResult()};
+  if($('#part')) $('#part').onchange=e=>{part[mode]=e.target.checked;store('sim-part-'+mode,part[mode]);renderResult()};
+  $('#copy').onclick=()=>copySummary(r,tr,recTotal,planTotal,opCount);
+}
+
+function copySummary(r,tr,recTotal,planTotal,opCount){
+  const {to}=MODES[mode];
+  const L=[];
+  L.push(`Simulación orientativa de reconocimiento: ${MODES[mode].from==='dg'?'Doble Grado en Ciencias Políticas y Filosofía':'Grado en Filosofía / Grado en Ciencias Políticas'} → ${PLAN[to].name}`);
+  L.push(`ECTS reconocidos: ${recTotal} de ${planTotal} (FB ${tr.FB}, OB ${tr.OB}, OP ${opCount}, TFG ${tr.TFG}) ${to!=='der'?` · faltan ${planTotal-recTotal}`:''}`);
+  if(to!=='dg' && part[mode]) L.push('Incluye 6 ECTS de créditos de participación computados como optativa.');
+  L.push('');
+  L.push('Asignaturas que se reconocerían:');
+  r.rec.forEach(x=>L.push(`- ${x.cod?x.cod+' ':''}${x.nom} (${x.ects} ECTS, ${x.car}) ← ${x.via.map(v=>(v.cod?v.cod+' ':'')+v.nom).join('; ')}`));
+  if(r.orphan.length){L.push('');L.push('Superadas sin equivalencia:');r.orphan.forEach(x=>L.push(`- ${x.cod?x.cod+' ':''}${x.nom}`))}
+  if(r.cross.length){L.push('');L.push('Para consultar en Secretaría:');r.cross.forEach(x=>L.push(`- ${x.cod?x.cod+' ':''}${x.nom}`))}
+  L.push('');L.push('Fuente: tabla de equivalencias del Doble Grado en Ciencias Políticas y Filosofía (DT50).');
+  const text=L.join('\n');
+  const done=()=>toast('Resumen copiado');
+  const fallback=()=>{$('#copybox').innerHTML=`<textarea class="fallback" id="fb" readonly></textarea>`;const t=$('#fb');t.value=text;t.focus();t.select();toast('Selecciona el texto y cópialo')};
+  try{ navigator.clipboard.writeText(text).then(done,fallback) }catch(e){ fallback() }
+}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
+
+/* ---------- eventos ---------- */
+function setMode(m){
+  mode=m; store('sim-mode',m);
+  document.querySelectorAll('.mode').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  renderOrigin(); renderResult();
+}
+document.querySelectorAll('.mode').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+$('#orig').addEventListener('change',e=>{
+  if(e.target.type!=='checkbox') return;
+  e.target.checked?sel[mode].add(e.target.value):sel[mode].delete(e.target.value);
+  store('sim-sel-'+mode,[...sel[mode]]); renderResult();
+});
+$('#orig').addEventListener('click',e=>{
+  const g=e.target.dataset&&e.target.dataset.all; if(!g) return;
+  const boxes=[...document.querySelectorAll(`label.item[data-g="${CSS.escape(g)}"] input`)];
+  const allOn=boxes.every(b=>b.checked);
+  boxes.forEach(b=>{b.checked=!allOn; !allOn?sel[mode].add(b.value):sel[mode].delete(b.value)});
+  store('sim-sel-'+mode,[...sel[mode]]); renderResult();
+});
+$('#q').addEventListener('input',renderOrigin);
+$('#clear').onclick=()=>{sel[mode].clear();store('sim-sel-'+mode,[]);renderOrigin();renderResult()};
+$('#example').onclick=()=>{
+  // Ejemplo: estudiante que ha superado 1.º y 2.º del origen
+  sel[mode].clear();
+  for(const {items} of originLists()) items.forEach(it=>{ if(semKey(it.sem)<=22) sel[mode].add(it.id) });
+  store('sim-sel-'+mode,[...sel[mode]]); renderOrigin(); renderResult(); toast('Ejemplo: 1.º y 2.º curso superados');
+};
+$('#mb-go').onclick=()=>$('#result').scrollIntoView({behavior:'smooth'});
+
+/* Primera vista: si no hay nada guardado, muestra un ejemplo */
+const anySaved = Object.values(sel).some(s=>s.size);
+setMode(mode);
+if(!anySaved){ $('#example').click() }
+</script>
+</body>
+</html>
