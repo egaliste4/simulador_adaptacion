@@ -1,782 +1,308 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Adaptación - Licenciatura (Plan 2000) a Grado en Filosofía - UCM</title>
-    <style>
-        /* --- ESTILOS GENERALES --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
-            color: white;
-            padding: 25px 30px;
-            text-align: center;
-        }
-        .header h1 { font-size: 2.2rem; margin-bottom: 8px; font-weight: 400; }
-        .header p { font-size: 1rem; opacity: 0.85; }
-        .content { padding: 30px; }
-
-        /* --- SECCIÓN DE BÚSQUEDA --- */
-        .search-section { margin-bottom: 30px; }
-        .search-container { position: relative; margin-bottom: 15px; }
-        .search-input {
-            width: 100%;
-            padding: 12px 18px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            font-size: 1rem;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
-            outline: none; border-color: #8E2DE2; background: white;
-            box-shadow: 0 0 0 2px rgba(142, 45, 226, 0.2);
-        }
-        .subject-list {
-            background: #f8f9fa; border-radius: 8px;
-            max-height: 300px; overflow-y: auto; border: 1px solid #ced4da;
-        }
-        .subject-item {
-            padding: 12px 18px; cursor: pointer; border-bottom: 1px solid #e9ecef;
-            transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center;
-        }
-        .subject-item.selected-for-adaptation { background-color: #e6f7ff; color: #005285; }
-        .subject-item.selected-for-adaptation:hover { background-color: #d0f0ff; }
-        .subject-item:hover { background: #e9f5ff; }
-        .subject-item:last-child { border-bottom: none; }
-        .subject-name { font-weight: 500; color: #212529; flex-grow: 1; }
-        .subject-details-lic { font-size: 0.85rem; color: #6c757d; margin-left: 10px; white-space: nowrap; }
-        .subject-code { background: #e9ecef; padding: 3px 7px; border-radius: 4px; margin-right: 5px;}
-
-
-        /* --- SECCIÓN DE RESULTADOS --- */
-        .results-section { animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .results-header {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white;
-            padding: 18px 25px; border-radius: 8px; margin-bottom: 25px; text-align: center;
-        }
-        .results-header h2 { font-size: 1.6rem; margin-bottom: 8px; }
-        #clear-selected-button, #print-summary-button { /* Estilo para ambos botones */
-            background: #6c757d; color: white; border: none; padding: 10px 20px;
-            border-radius: 8px; cursor: pointer; font-size: 0.9rem;
-            transition: background-color 0.3s ease; margin-top: 15px;
-        }
-        #clear-selected-button { background-color: #dc3545;}
-        #clear-selected-button:hover { background-color: #c82333; }
-        #print-summary-button { background-color: #007bff;}
-        #print-summary-button:hover { background-color: #0056b3; }
-        .buttons-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;}
-
-
-        .equivalences-container {
-            border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; background-color: #f8f9fa;
-        }
-        .licenciatura-block {
-            margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed #adb5bd;
-        }
-        .licenciatura-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .licenciatura-block h3 {
-            font-size: 1.2rem; color: #4A00E0; margin-bottom: 5px;
-        }
-        .licenciatura-block .lic-details { font-size: 0.9rem; color: #555; margin-bottom: 12px; }
-
-        .equivalence-card {
-            background: white; border: 1px solid #ced4da; border-radius: 8px; padding: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.04); margin-bottom: 15px;
-        }
-        .equivalence-card:last-child { margin-bottom: 0; }
-        .equivalence-card.excedente {
-            background: #fff8e1;
-            border-color: #ffc107;
-            border-left: 4px solid #ff9800;
-        }
-        .equivalence-card.duplicada {
-            opacity: 0.7;
-            background: #f1f3f5;
-            border-style: dashed;
-        }
-        .equivalence-type {
-            font-size: 0.85rem; color: #fff; background-color: #007bff; padding: 4px 9px;
-            border-radius: 4px; display: inline-block; margin-bottom: 8px; font-weight: 500;
-        }
-        .equivalence-type.excedente-badge { background-color: #ff9800; }
-        .equivalence-type.duplicada-badge { background-color: #6c757d; }
-        .equivalence-content h4 { font-size: 1.1rem; color: #343a40; margin-bottom: 3px; }
-        .equivalence-content .grado-details { font-size: 0.9rem; color: #555; margin-bottom: 8px; }
-        .equivalence-details span {
-            margin-right: 8px;
-        }
-        .excedente-note {
-            margin-top: 10px;
-            padding: 10px 12px;
-            background: #fff3cd;
-            border-left: 3px solid #ffc107;
-            font-size: 0.85rem;
-            color: #856404;
-            border-radius: 4px;
-            line-height: 1.4;
-        }
-        .duplicada-note {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background: #e9ecef;
-            border-left: 3px solid #6c757d;
-            font-size: 0.85rem;
-            color: #495057;
-            border-radius: 4px;
-        }
-
-
-        .no-results, .no-selected-subjects {
-            text-align: center; padding: 30px; color: #6c757d; font-size: 1rem;
-            background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #ced4da;
-        }
-
-        /* --- SECCIÓN DE RESUMEN --- */
-        .summary-section {
-            background: #e9ecef; border-radius: 8px; padding: 20px; margin-top: 25px;
-            border-left: 3px solid #4A00E0;
-        }
-        .summary-section h3 { font-size: 1.3rem; color: #212529; margin-bottom: 12px; }
-        .summary-text { color: #495057; line-height: 1.6; }
-        .summary-text ul { list-style-position: inside; padding-left: 0; margin-bottom: 10px; }
-        .summary-text li { margin-bottom: 4px; }
-        .summary-text strong { color: #0056b3; }
-        .summary-credits { margin-top:15px; font-weight: bold; font-size: 1.1rem;}
-        .summary-credits p { margin-bottom: 5px; }
-        .summary-warning {
-            margin-top: 15px;
-            padding: 12px 15px;
-            background: #fff3cd;
-            border-left: 4px solid #ff9800;
-            border-radius: 4px;
-            color: #856404;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        .summary-warning strong { color: #856404; }
-        .optativas-counter {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-left: 5px;
-        }
-        .optativas-counter.ok { background: #d4edda; color: #155724; }
-        .optativas-counter.full { background: #fff3cd; color: #856404; }
-        .optativas-counter.over { background: #f8d7da; color: #721c24; }
-
-
-        /* --- ESTILOS DE IMPRESIÓN --- */
-        @media print {
-            body {
-                padding: 0;
-                margin: 0;
-                font-size: 10pt;
-                background: #fff;
-                color: #000;
-            }
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-                border: none;
-                max-width: 100%;
-            }
-            .header, .search-section, #clear-selected-button, #print-summary-button, .no-results, .no-selected-subjects, .buttons-container {
-                display: none !important;
-            }
-            .results-section {
-                display: block !important;
-                animation: none;
-            }
-            .results-header {
-                background: #eee;
-                color: #000;
-                text-align: left;
-                padding: 10px;
-                border-bottom: 1px solid #ccc;
-            }
-             .results-header h2 { font-size: 1.4rem; }
-
-            .equivalences-container {
-                border: none; padding: 0; background-color: #fff;
-            }
-            .licenciatura-block {
-                page-break-inside: avoid;
-                border-bottom: 1px solid #ccc;
-                margin-bottom: 15px; padding-bottom: 10px;
-            }
-            .licenciatura-block h3 { font-size: 1.1rem; color: #000; }
-            .equivalence-card {
-                box-shadow: none; border: 1px solid #ddd; padding: 10px;
-                page-break-inside: avoid;
-            }
-            .equivalence-card.excedente {
-                background: #f9f9f9;
-                border-left: 3px solid #000;
-            }
-            .equivalence-type { background-color: #ddd; color: #000; font-weight: normal; }
-            .equivalence-type.excedente-badge { background-color: #999; color: #fff; }
-            .equivalence-content h4 { font-size: 1rem; }
-            .excedente-note {
-                background: #f5f5f5;
-                border-left: 2px solid #999;
-                color: #000;
-            }
-
-            .summary-section {
-                border-left: none; background: #fff; padding: 15px 0; margin-top: 20px;
-                border-top: 2px solid #000;
-            }
-            .summary-section h3 { font-size: 1.2rem; }
-            .summary-text ul { margin-bottom: 5px;}
-            .summary-text li { font-size: 9pt; }
-            .summary-credits p { font-size: 10pt; }
-            .summary-warning {
-                background: #f5f5f5;
-                border-left: 3px solid #000;
-                color: #000;
-            }
-
-            a[href]:after { content: ""; }
-        }
-        @media (max-width: 768px) {
-            .header h1 { font-size: 1.8rem; }
-            .content { padding: 15px; }
-            .buttons-container { flex-direction: column; align-items: center; }
-            #clear-selected-button, #print-summary-button { width: 80%; margin-bottom: 10px; }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador Licenciatura a Grado en Filosofía</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>[hidden]{display:none!important} img{max-width:100%}</style>
+<style>
+/* Layout: two-pane worksheet — asignaturas de Licenciatura superadas a la izquierda, plan del Grado con lo reconocido a la derecha (fijo al hacer scroll); en móvil se apilan y una barra inferior resume. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --line:#dfe3ea; --ink:#1b2230; --muted:#5d6779;
+  --fil:#2f5f8a; --fil-soft:#e6eef6; --der:#8a3a3f; --der-soft:#f5e8e8;
+  --ok:#2e6b48; --ok-soft:#e5f1e9; --warn:#8a5a12; --warn-soft:#f8eedb;
+  --accent:#1f3a5c; color-scheme:light;
+  --f-display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 96px}
+header{display:grid;gap:10px;margin-bottom:22px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--f-display);font-weight:650;font-size:clamp(26px,4vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:68ch;margin:0}
+.modes{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+.mode{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:14px;padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left}
+.mode:hover{border-color:var(--muted)}
+.mode[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:600}
+.mode:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.arrow{color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+.dot.dg{background:linear-gradient(90deg,var(--der) 50%,var(--fil) 50%)}
+.dot.fil{background:var(--fil)} .dot.der{background:var(--der)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.pane{min-width:0}
+.pane h2{font-family:var(--f-display);font-weight:650;font-size:21px;margin:0 0 4px}
+.pane .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.search{flex:1 1 200px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.btn{appearance:none;font:inherit;font-size:13.5px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.group{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.ghead strong{font-weight:600;letter-spacing:.02em}
+.ghead .link{appearance:none;border:0;background:none;color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:2px}
+.plan-tag{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 0;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.plan-tag.fil{color:var(--fil)} .plan-tag.der{color:var(--der)}
+label.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 14px;border-top:1px solid var(--line);cursor:pointer}
+label.item:first-of-type{border-top:0}
+label.item:hover{background:color-mix(in srgb,var(--line) 35%,transparent)}
+label.item input{width:17px;height:17px;margin:2px 0 0;accent-color:var(--accent)}
+.iname{min-width:0}
+.iname .n{display:block}
+.code{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.chips{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+.chip{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip.k-FB{color:var(--accent)} .chip.k-TFG{color:var(--warn)}
+.dot.side{width:7px;height:7px;margin-top:6px}
+aside.result{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+@media (max-width:860px){aside.result{position:static;max-height:none}}
+.big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.big .num{font-family:var(--f-display);font-size:44px;font-weight:650;line-height:1;font-variant-numeric:tabular-nums}
+.big .of{color:var(--muted)}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:color-mix(in srgb,var(--line) 70%,transparent);margin:12px 0 8px}
+.bar span{display:block;height:100%}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px 14px;font-size:13px;margin-bottom:14px}
+.legend div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:3px}
+.legend b{font-variant-numeric:tabular-nums;font-weight:600}
+.note{font-size:13px;color:var(--muted);background:color-mix(in srgb,var(--line) 30%,transparent);border-radius:8px;padding:10px 12px;margin:12px 0}
+.note.warn{background:var(--warn-soft);color:var(--ink)}
+.note ul{margin:6px 0 0;padding-left:18px}
+.rtools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 8px}
+.toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer}
+.rgroup h3{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;font-weight:600;display:flex;justify-content:space-between}
+.rrow{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.rrow .st{font-weight:700;text-align:center}
+.rrow.ok .st{color:var(--ok)} .rrow.pend .st{color:var(--muted)}
+.rrow.pend .rn{color:var(--muted)}
+.via{display:block;font-size:12.5px;color:var(--muted)}
+.via em{font-style:normal;background:var(--warn-soft);color:var(--warn);padding:0 5px;border-radius:3px;font-size:11.5px;margin-right:4px}
+.empty{color:var(--muted);font-size:13.5px;padding:8px 0}
+.mbar{display:none}
+@media (max-width:860px){
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border-top:1px solid var(--line);
+    padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));z-index:5}
+  .mbar b{font-variant-numeric:tabular-nums}
+}
+footer{margin-top:28px;color:var(--muted);font-size:12.5px;max-width:80ch}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13.5px;z-index:9}
+textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-size:12px;margin-top:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:width .25s ease}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Simulador de Adaptación</h1>
-            <p>De Licenciatura (Plan 2000) a Grado en Filosofía - UCM</p>
-        </div>
+<style>
+.lcred{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.maps{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.rrow.exc .st{color:var(--warn)}
+.legend-note{font-size:12.5px;color:var(--muted);margin:-6px 0 12px}
+</style>
 
-        <div class="content">
-            <div id="search-section" class="search-section">
-                <div class="search-container">
-                    <input type="text" id="search-input" class="search-input" 
-                           placeholder="Busca y selecciona asignaturas de Licenciatura...">
-                </div>
-                <div id="subject-list" class="subject-list"></div>
-            </div>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Facultad de Filosofía · Secretaría de Estudiantes</span>
+    <h1>Simulador de adaptación de la Licenciatura (Plan 2000) al Grado en Filosofía</h1>
+    <p class="lede">Marca las asignaturas de la Licenciatura que tienes superadas. A la derecha verás qué asignaturas del Grado en Filosofía se te reconocerían y cuáles te quedarían por cursar. El resultado es orientativo.</p>
+  </header>
 
-            <div id="results-section" class="results-section" style="display: none;">
-                <div class="results-header">
-                    <h2>Asignaturas de Grado Reconocidas</h2>
-                </div>
-                <div id="equivalences-container" class="equivalences-container"></div>
-                <div id="no-selected-subjects" class="no-selected-subjects" style="display: none;">
-                    <p>No has seleccionado ninguna asignatura de Licenciatura para ver sus equivalencias.</p>
-                </div>
-                
-                <div class="buttons-container">
-                    <button id="clear-selected-button">Limpiar Selección</button>
-                    <button id="print-summary-button">Imprimir/Guardar Resumen PDF</button>
-                </div>
+  <div class="grid">
+    <section class="pane" aria-labelledby="h-orig">
+      <h2 id="h-orig">Asignaturas superadas en la Licenciatura</h2>
+      <p class="sub">Licenciatura en Filosofía, Plan 2000. Los créditos son los del plan antiguo, no ECTS.</p>
+      <div class="tools">
+        <input class="search" id="q" type="search" placeholder="Buscar por nombre o código" aria-label="Buscar asignatura">
+        <button class="btn" id="clear" type="button">Desmarcar todo</button>
+        <button class="btn" id="example" type="button">Cargar ejemplo</button>
+      </div>
+      <div id="orig"></div>
+    </section>
 
-                <div class="summary-section">
-                    <h3>📚 Resumen General de tu Adaptación</h3>
-                    <div id="summary-text" class="summary-text">
-                        <p>Selecciona asignaturas de Licenciatura para ver el resumen.</p>
-                    </div>
-                </div>
-            </div>
+    <aside class="result" id="result" aria-live="polite" aria-labelledby="h-res"></aside>
+  </div>
 
-            <div id="no-results" class="no-results" style="display: none;">
-                <p>No se encontraron asignaturas de Licenciatura con ese nombre/código.</p>
-            </div>
-        </div>
-    </div>
+  <footer>
+    Fuente: tabla de adaptación de la Licenciatura en Filosofía (Plan 2000) al Grado en Filosofía (0820) usada por el simulador de la Facultad; carácter y semestre de las asignaturas del Grado según la tabla de equivalencias de 2026 y el plan de estudios del Grado (enero de 2026). La resolución de la adaptación corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
+  </footer>
+</div>
 
-    <script>
-        // --- DATOS DE ADAPTACIÓN ---
-        const adaptationData = [
-            // PRIMER CURSO LICENCIATURA
-            {
-                licenciatura: { codigo: "200", nombreOriginalUCM: "ANTROPOLOGÍA", nombre: "ANTROPOLOGÍA", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801292", nombre: "ANTROPOLOGÍA I", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801297", nombre: "ANTROPOLOGÍA II", caracter: "Formación Básica", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "201", nombreOriginalUCM: "HISTORIA FILOSOFÍA ANTIGUA", nombre: "HISTORIA DE LA FILOSOFÍA ANTIGUA", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801298", nombre: "HISTORIA DE LA FILOSOFÍA ANTIGUA", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801319", nombre: "SEMINARIO DE HISTORIA DE LA FILOSOFÍA ANTIGUA", caracter: "Optativa", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "202", nombreOriginalUCM: "LÓGICA", nombre: "LÓGICA", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801304", nombre: "LÓGICA I", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801309", nombre: "LÓGICA II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "203", nombreOriginalUCM: "ONTOLOGÍA", nombre: "ONTOLOGÍA FUNDAMENTAL", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 11 },
-                grado: [
-                    { codigo: "801293", nombre: "ONTOLOGÍA FUNDAMENTAL", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801313", nombre: "HERMENÉUTICA Y LENGUAJE", caracter: "Optativa", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "204", nombreOriginalUCM: "ALEMÁN I", nombre: "ALEMÁN PARA FILÓSOFOS I", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 9 },
-                grado: [
-                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801294", nombre: "LITERATURA CONTEMPORÁNEA", caracter: "Formación Básica", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "205", nombreOriginalUCM: "LATÍN I", nombre: "LATÍN I", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 9 },
-                grado: [
-                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801300", nombre: "HISTORIA DEL MUNDO CONTEMPORÁNEO", caracter: "Formación Básica", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "206", nombreOriginalUCM: "GRIEGO I", nombre: "GRIEGO I", caracterOriginalUCM: "OB. 1º", caracter: "Obligatoria", creditos: 9 },
-                grado: [
-                    { codigo: "801305", nombre: "ALEMÁN BÁSICO PARA FILÓSOFOS", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801290", nombre: "HISTORIA DEL MUNDO CONTEMPORÁNEO", caracter: "Formación Básica", creditos: 6 }
-                ]
-            },
+<div class="mbar" id="mbar"><span><b id="mb-n">0</b> ECTS reconocidos</span><button class="btn primary" type="button" id="mb-go">Ver resultado</button></div>
 
-            // SEGUNDO CURSO LICENCIATURA
-            {
-                licenciatura: { codigo: "207", nombreOriginalUCM: "HISTORIA FILOSOFÍA MEDIEVAL", nombre: "HISTORIA DE LA FILOSOFÍA MEDIEVAL", caracterOriginalUCM: "TR. 1º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801299", nombre: "HISTORIA DE LA FILOSOFÍA MEDIEVAL", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801320", nombre: "SEMINARIO DE FILOSOFÍA MEDIEVAL: EL PENSAMIENTO ÁRABE CLÁSICO", caracter: "Optativa", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "208", nombreOriginalUCM: "FILOSOFÍA DEL LENGUAJE", nombre: "FILOSOFÍA DEL LENGUAJE", caracterOriginalUCM: "TR. 2º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801334", nombre: "FILOSOFÍA DEL LENGUAJE I", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801343", nombre: "FILOSOFÍA DEL LENGUAJE II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "209", nombreOriginalUCM: "ALEMÁN II", nombre: "ALEMÁN PARA FILÓSOFOS II", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
-                grado: [ { codigo: "801337", nombre: "ALEMÁN AVANZADO PARA FILÓSOFOS", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "210", nombreOriginalUCM: "LATÍN II", nombre: "LATÍN II", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
-                grado: [ { codigo: "801338", nombre: "LATÍN PARA FILÓSOFOS", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "211", nombreOriginalUCM: "GRIEGOII", nombre: "GRIEGO II", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
-                grado: [ { codigo: "801339", nombre: "GRIEGO PARA FILÓSOFOS I", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "212", nombreOriginalUCM: "FILOSOFÍA NATURALEZA", nombre: "FILOSOFÍA DE LA NATURALEZA", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 9 },
-                grado: [ { codigo: "801303", nombre: "FILOSOFÍA DE LA NATURALEZA", caracter: "Obligatoria", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "213", nombreOriginalUCM: "TEORÍA RACIONALIDAD PRÁCTICA", nombre: "TEORÍA DE LA RACIONALIDAD PRÁCTICA", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801339G", nombre: "TEORÍA DE LA RACIONALIDAD PRÁCTICA", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "214", nombreOriginalUCM: "INTRODUCCIÓN PSICOLOGÍA", nombre: "INTRODUCCIÓN A LA PSICOLOGÍA", caracterOriginalUCM: "OB. 2º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801295", nombre: "PSICOLOGÍA BÁSICA", caracter: "Formación Básica", creditos: 6 } ]
-            },
-            // TERCER CURSO LICENCIATURA
-            {
-                licenciatura: { codigo: "215", nombreOriginalUCM: "HISTORIA FILOSOFÍA MODERNA", nombre: "HISTORIA DE LA FILOSOFÍA MODERNA", caracterOriginalUCM: "TR. 3º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801307", nombre: "HISTORIA DE LA FILOSOFÍA MODERNA", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801321", nombre: "SEMINARIO DE FILOSOFÍA MODERNA", caracter: "Optativa", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "216", nombreOriginalUCM: "ÉTICA", nombre: "ÉTICA", caracterOriginalUCM: "TR. 3º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801301", nombre: "ÉTICA I", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801308", nombre: "ÉTICA II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "217", nombreOriginalUCM: "TEOR. CONOCIMIENTO", nombre: "TEORÍA DEL CONOCIMIENTO", caracterOriginalUCM: "TR. 3º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801302", nombre: "TEORÍA DEL CONOCIMIENTO I", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801306", nombre: "TEORÍA DEL CONOCIMIENTO II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "218", nombreOriginalUCM: "HISTORIA Y FILOSOFÍA DE LA LÓGICA", nombre: "HISTORIA Y FILOSOFÍA DE LA LÓGICA", caracterOriginalUCM: "OB. 3º", caracter: "Obligatoria", creditos: 6 },
-                grado: [ { codigo: "801313F", nombre: "FILOSOFÍA DE LA LÓGICA", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "219", nombreOriginalUCM: "FILOSOFÍA RELIGIÓN", nombre: "FILOSOFÍA DE LA RELIGIÓN", caracterOriginalUCM: "OB. 3º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801315F", nombre: "FILOSOFÍA DE LA RELIGIÓN", caracter: "Optativa", creditos: 6 } ]
-            },
+<script>
+const DATA = {"lic":[{"id":"L200","cod":"200","nom":"ANTROPOLOGÍA","cred":11.0,"tipo":"Troncal","orig":"TR. 1º","g":["801292","801297"],"curso":1},{"id":"L201","cod":"201","nom":"HISTORIA DE LA FILOSOFÍA ANTIGUA","cred":11.0,"tipo":"Troncal","orig":"TR. 1º","g":["801298","801319"],"curso":1},{"id":"L202","cod":"202","nom":"LÓGICA","cred":11.0,"tipo":"Troncal","orig":"TR. 1º","g":["801304","801309"],"curso":1},{"id":"L203","cod":"203","nom":"ONTOLOGÍA FUNDAMENTAL","cred":11.0,"tipo":"Obligatoria","orig":"OB. 1º","g":["801293","801313"],"curso":1},{"id":"L204","cod":"204","nom":"ALEMÁN PARA FILÓSOFOS I","cred":9.0,"tipo":"Obligatoria","orig":"OB. 1º","g":["801305","801294"],"curso":1},{"id":"L205","cod":"205","nom":"LATÍN I","cred":9.0,"tipo":"Obligatoria","orig":"OB. 1º","g":["801305","801300"],"curso":1},{"id":"L206","cod":"206","nom":"GRIEGO I","cred":9.0,"tipo":"Obligatoria","orig":"OB. 1º","g":["801305","801290"],"curso":1},{"id":"L207","cod":"207","nom":"HISTORIA DE LA FILOSOFÍA MEDIEVAL","cred":11.0,"tipo":"Troncal","orig":"TR. 1º","g":["801299","801320"],"curso":2},{"id":"L208","cod":"208","nom":"FILOSOFÍA DEL LENGUAJE","cred":11.0,"tipo":"Troncal","orig":"TR. 2º","g":["801334","801343"],"curso":2},{"id":"L209","cod":"209","nom":"ALEMÁN PARA FILÓSOFOS II","cred":9.0,"tipo":"Obligatoria","orig":"OB. 2º","g":["801337"],"curso":2},{"id":"L210","cod":"210","nom":"LATÍN II","cred":9.0,"tipo":"Obligatoria","orig":"OB. 2º","g":["801338"],"curso":2},{"id":"L211","cod":"211","nom":"GRIEGO II","cred":9.0,"tipo":"Obligatoria","orig":"OB. 2º","g":["801339"],"curso":2},{"id":"L212","cod":"212","nom":"FILOSOFÍA DE LA NATURALEZA","cred":9.0,"tipo":"Obligatoria","orig":"OB. 2º","g":["801303"],"curso":2},{"id":"L213","cod":"213","nom":"TEORÍA DE LA RACIONALIDAD PRÁCTICA","cred":4.5,"tipo":"Obligatoria","orig":"OB. 2º","g":["801325"],"curso":2},{"id":"L214","cod":"214","nom":"INTRODUCCIÓN A LA PSICOLOGÍA","cred":4.5,"tipo":"Obligatoria","orig":"OB. 2º","g":["801295"],"curso":2},{"id":"L215","cod":"215","nom":"HISTORIA DE LA FILOSOFÍA MODERNA","cred":11.0,"tipo":"Troncal","orig":"TR. 3º","g":["801307","801321"],"curso":3},{"id":"L216","cod":"216","nom":"ÉTICA","cred":11.0,"tipo":"Troncal","orig":"TR. 3º","g":["801301","801308"],"curso":3},{"id":"L217","cod":"217","nom":"TEORÍA DEL CONOCIMIENTO","cred":11.0,"tipo":"Troncal","orig":"TR. 3º","g":["801302","801306"],"curso":3},{"id":"L218","cod":"218","nom":"HISTORIA Y FILOSOFÍA DE LA LÓGICA","cred":6.0,"tipo":"Obligatoria","orig":"OB. 3º","g":["801333"],"curso":3},{"id":"L219","cod":"219","nom":"FILOSOFÍA DE LA RELIGIÓN","cred":4.5,"tipo":"Obligatoria","orig":"OB. 3º","g":["801315"],"curso":3},{"id":"L241","cod":"241","nom":"METAFÍSICA","cred":11.0,"tipo":"Troncal","orig":"TR. 4º","g":["801312","801340"],"curso":4},{"id":"L242","cod":"242","nom":"ESTÉTICA","cred":11.0,"tipo":"Troncal","orig":"TR. 4º","g":["801296","801329"],"curso":4},{"id":"L243","cod":"243","nom":"FILOSOFÍA CONTEMPORÁNEA","cred":11.0,"tipo":"Obligatoria","orig":"OB. 4º","g":["801323","801322"],"curso":4},{"id":"L244","cod":"244","nom":"HISTORIA DE LA FILOSOFÍA ESPAÑOLA","cred":4.5,"tipo":"Obligatoria","orig":"OB. 4º","g":["801341"],"curso":4},{"id":"L245","cod":"245","nom":"HISTORIA Y TEORÍA DE LA CIENCIA","cred":4.5,"tipo":"Obligatoria","orig":"OB. 4º","g":["801336"],"curso":4},{"id":"L246","cod":"246","nom":"TEORÍA DE LA SOCIEDAD","cred":4.5,"tipo":"Obligatoria","orig":"OB. 4º","g":["801328"],"curso":4},{"id":"L247","cod":"247","nom":"ESCUELAS Y SISTEMAS DE PSICOLOGÍA","cred":4.5,"tipo":"Obligatoria","orig":"OB. 4º","g":["801344"],"curso":4},{"id":"L248","cod":"248","nom":"FILOSOFÍA DE LA CIENCIA","cred":11.0,"tipo":"Troncal","orig":"TR. 5º","g":["801346","801348"],"curso":5},{"id":"L249","cod":"249","nom":"FILOSOFÍA POLÍTICA","cred":11.0,"tipo":"Troncal","orig":"TR. 5º","g":["801291","801342"],"curso":5},{"id":"L250","cod":"250","nom":"CORRIENTES ACTUALES DE LA FILOSOFÍA: CUESTIONES FUNDAMENTALES","cred":6.0,"tipo":"Troncal","orig":"TR. 5º","g":["801345"],"curso":5},{"id":"L251","cod":"251","nom":"CORRIENTES ACTUALES DE LA FILOSOFÍA: GRANDES PARADIGMAS","cred":6.0,"tipo":"Troncal","orig":"TR. 5º","g":["801347"],"curso":5},{"id":"L252","cod":"252","nom":"FILOSOFÍA DE LA ACCIÓN","cred":4.5,"tipo":"Obligatoria","orig":"TR. 5º","g":["801310"],"curso":5},{"id":"L253","cod":"253","nom":"FILOSOFÍA DE LA HISTORIA","cred":4.5,"tipo":"Obligatoria","orig":"OB. 5º","g":["801318"],"curso":5},{"id":"L104498","cod":"104498","nom":"TEORÍAS DE LA LIBERTAD","cred":4.5,"tipo":"Optativa","orig":"2º","g":["801314"],"curso":0},{"id":"LU07","cod":"U 07","nom":"CIENCIA, TECNOLOGÍA Y SOCIEDAD","cred":4.5,"tipo":"Optativa","orig":"GENÉRICA","g":["801327"],"curso":0},{"id":"L104469F","cod":"104469F","nom":"TEORÍA Y CRÍTICA FEMINISTA","cred":4.5,"tipo":"Optativa","orig":"1º","g":["801332"],"curso":0}],"cat":[{"cod":"801290","nom":"Historia del Mundo Contemporáneo","ects":6,"sem":"1-1","car":"FB","misma":false},{"cod":"801291","nom":"Filosofía Política I","ects":6,"sem":"1-1","car":"FB","misma":true},{"cod":"801292","nom":"Antropología Filosófica I","ects":6,"sem":"1-1","car":"FB","misma":true},{"cod":"801293","nom":"Ontología Fundamental","ects":6,"sem":"1-1","car":"FB","misma":true},{"cod":"801294","nom":"Literatura Contemporánea","ects":6,"sem":"1-2","car":"FB","misma":false},{"cod":"801295","nom":"Psicología Básica","ects":6,"sem":"1-2","car":"FB","misma":false},{"cod":"801296","nom":"Estética","ects":6,"sem":"1-2","car":"FB","misma":true},{"cod":"801297","nom":"Antropología Filosófica II","ects":6,"sem":"1-2","car":"OB","misma":true},{"cod":"801298","nom":"Historia de la Filosofía Antigua","ects":6,"sem":"1-1","car":"OB","misma":true},{"cod":"801299","nom":"Historia de la Filosofía Medieval","ects":6,"sem":"1-2","car":"OB","misma":true},{"cod":"801300","nom":"Historia del Arte Contemporáneo","ects":6,"sem":"2-2","car":"FB","misma":false},{"cod":"801301","nom":"Ética I","ects":6,"sem":"2-1","car":"FB","misma":true},{"cod":"801302","nom":"Teoría del Conocimiento I","ects":6,"sem":"2-1","car":"OB","misma":true},{"cod":"801303","nom":"Filosofía de la Naturaleza","ects":6,"sem":"2-2","car":"OB","misma":true},{"cod":"801304","nom":"Lógica I","ects":6,"sem":"2-1","car":"OB","misma":true},{"cod":"801305","nom":"Alemán Básico para filósofos","ects":6,"sem":"2-1","car":"FB","misma":false},{"cod":"801306","nom":"Teoría del Conocimiento II","ects":6,"sem":"2-2","car":"OB","misma":true},{"cod":"801307","nom":"Historia de la Filosofía Moderna","ects":6,"sem":"2-1","car":"OB","misma":true},{"cod":"801308","nom":"Ética II","ects":6,"sem":"2-2","car":"OB","misma":true},{"cod":"801309","nom":"Lógica II","ects":6,"sem":"2-2","car":"OB","misma":true},{"cod":"801310","nom":"Filosofía de la Acción","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801311","nom":"Filosofía de la Cultura","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801312","nom":"Metafísica I","ects":6,"sem":"3-1","car":"OB","misma":true},{"cod":"801313","nom":"Hermenéutica y Lenguaje","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801314","nom":"Teoría de la Libertad","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801315","nom":"Filosofía de la Religión","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801317","nom":"Teorías de la Materia y de la Vida","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},{"cod":"801318","nom":"Filosofía de la Historia","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801319","nom":"Seminario de Historia de la Filosofía A","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801320","nom":"Seminario de Filosofía Medieval: El Pe","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801321","nom":"Seminario de Filosofía Moderna","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801322","nom":"Filosofía del Siglo XIX","ects":6,"sem":"3-1","car":"OB","misma":true},{"cod":"801323","nom":"Seminario de Filosofía Contemporánea","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801324","nom":"Seminario de Filosofía Latinoamerican","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801325","nom":"Teoría de la Racionalidad Práctica","ects":6,"sem":"3/4-1/2","car":"OP"},{"cod":"801326","nom":"Bioética","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801327","nom":"Ciencia, Tecnología y Sociedad","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801328","nom":"Teoría de la Sociedad: Historia de las","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801329","nom":"Perspectivas de la Estética Contemporánea","ects":6,"sem":"3-1","car":"OB","misma":true},{"cod":"801330","nom":"Estética y Semiótica","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801331","nom":"Teoría de los Derechos Humanos","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801332","nom":"Teoría y Crítica Feministas","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801333","nom":"Filosofía de la Lógica","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801334","nom":"Filosofía del Lenguaje I","ects":6,"sem":"3-1","car":"OB","misma":true},{"cod":"801335","nom":"Lenguaje y Pensamiento","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801336","nom":"Historia de la Ciencia","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801337","nom":"Alemán Avanzado para Filósofos","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},{"cod":"801338","nom":"Latín para Filósofos","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},{"cod":"801339","nom":"Griego para Filósofos","ects":6,"sem":"3/4-1/2","car":"OP","misma":false},{"cod":"801340","nom":"Metafísica II","ects":6,"sem":"3-2","car":"OB","misma":true},{"cod":"801341","nom":"Filosofía Española Contemporánea","ects":6,"sem":"3-2","car":"OB","misma":true},{"cod":"801342","nom":"Filosofía Política II","ects":6,"sem":"3-2","car":"OB","misma":true},{"cod":"801343","nom":"Filosofía del Lenguaje II","ects":6,"sem":"3-2","car":"OB","misma":true},{"cod":"801344","nom":"Filosofía de la Mente","ects":6,"sem":"4-1","car":"OB","misma":true},{"cod":"801345","nom":"Corrientes Actuales de la Filosofía I","ects":6,"sem":"4-1","car":"OB","misma":true},{"cod":"801346","nom":"Filosofía de la Ciencia I","ects":6,"sem":"4-1","car":"OB","misma":true},{"cod":"801347","nom":"Corrientes Actuales de la Filosofía II","ects":6,"sem":"4-2","car":"OB","misma":true},{"cod":"801348","nom":"Filosofía de la Ciencia II","ects":6,"sem":"4-2","car":"OB","misma":true},{"cod":"801349","nom":"Trabajo Fin de Grado (Filosofía)","ects":6,"sem":"4-2","car":"TFG","misma":true},{"cod":"801350","nom":"Filosofías de Asia","ects":6,"sem":"3/4-1/2","car":"OP","misma":true},{"cod":"801351","nom":"Griego para Filósofos II","ects":6,"sem":"3/4-1/2","car":"OP","misma":false}]};
 
-            // CUARTO CURSO LICENCIATURA (SEGUNDO CICLO)
-            {
-                licenciatura: { codigo: "241", nombreOriginalUCM: "METAFÍSICA", nombre: "METAFÍSICA", caracterOriginalUCM: "TR. 4º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801312", nombre: "METAFÍSICA I", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801340", nombre: "METAFÍSICA II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "242", nombreOriginalUCM: "ESTÉTICA", nombre: "ESTÉTICA", caracterOriginalUCM: "TR. 4º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801296E", nombre: "ESTÉTICA", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801329", nombre: "PERSPECTIVAS DE LA ESTÉTICA CONTEMPORÁNEA", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "243", nombreOriginalUCM: "FILOSOFÍA CONTEMPORÁ.", nombre: "FILOSOFÍA CONTEMPORÁNEA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 11 },
-                grado: [
-                    { codigo: "801323S", nombre: "SEMINARIO DE FILOSOFÍA CONTEMPORÁNEA", caracter: "Optativa", creditos: 6 },
-                    { codigo: "801322", nombre: "FILOSOFÍA DEL SIGLO XIX", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "244", nombreOriginalUCM: "HISTORIA FILOSOFÍA ESPAÑOLA", nombre: "HISTORIA DE LA FILOSOFÍA ESPAÑOLA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801341F", nombre: "FILOSOFÍA ESPAÑOLA CONTEMPORÁNEA", caracter: "Obligatoria", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "245", nombreOriginalUCM: "HISTORIA TEORIA CIENCIA", nombre: "HISTORIA Y TEORÍA DE LA CIENCIA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801336H", nombre: "HISTORIA DE LA CIENCIA", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "246", nombreOriginalUCM: "TEORÍA Y SOCIEDAD", nombre: "TEORÍA DE LA SOCIEDAD", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801328T", nombre: "TEORÍA DE LA SOCIEDAD: HISTORIA DE LAS TEORÍAS FEMINISTAS", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "247", nombreOriginalUCM: "ESC. Y SIST. PSICOLOG", nombre: "ESCUELAS Y SISTEMAS DE PSICOLOGÍA", caracterOriginalUCM: "OB. 4º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801344F", nombre: "FILOSOFÍA DE LA MENTE", caracter: "Obligatoria", creditos: 6 } ]
-            },
+const KIND = {FB:'Formación básica',OB:'Obligatoria',OP:'Optativa',TFG:'Trabajo Fin de Grado'};
+const KCOL = {FB:'var(--accent)',OB:'var(--ok)',OP:'var(--warn)',TFG:'var(--der)'};
+// Grado en Filosofía: FB 60 · OB 138 · OP 36 · TFG 6 = 240
+const REQ = {FB:60,OB:138,OP:36,TFG:6}, TOTAL = 240;
 
-            // QUINTO CURSO LICENCIATURA
-            {
-                licenciatura: { codigo: "248", nombreOriginalUCM: "FILOSOFIA CIENCIA", nombre: "FILOSOFÍA DE LA CIENCIA", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801346", nombre: "FILOSOFÍA DE LA CIENCIA I", caracter: "Obligatoria", creditos: 6 },
-                    { codigo: "801348", nombre: "FILOSOFÍA DE LA CIENCIA II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "249", nombreOriginalUCM: "FILOSOFÍA POLÍTICA", nombre: "FILOSOFÍA POLÍTICA", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 11 },
-                grado: [
-                    { codigo: "801291", nombre: "FILOSOFÍA POLÍTICA I", caracter: "Formación Básica", creditos: 6 },
-                    { codigo: "801342", nombre: "FILOSOFÍA POLÍTICA II", caracter: "Obligatoria", creditos: 6 }
-                ]
-            },
-            {
-                licenciatura: { codigo: "250", nombreOriginalUCM: "CORRIENTES ACTUALES DE LA FILOSOFÍA I", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA: CUESTIONES FUNDAMENTALES", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 6 },
-                grado: [ { codigo: "801345C", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA I", caracter: "Obligatoria", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "251", nombreOriginalUCM: "CORRIENTES ACTUALES DE LA FILOSOFÍA II", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA: GRANDES PARADIGMAS", caracterOriginalUCM: "TR. 5º", caracter: "Troncal", creditos: 6 },
-                grado: [ { codigo: "801347C", nombre: "CORRIENTES ACTUALES DE LA FILOSOFÍA II", caracter: "Obligatoria", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "252", nombreOriginalUCM: "FILOSOFÍA DE LA ACCIÓN", nombre: "FILOSOFÍA DE LA ACCIÓN", caracterOriginalUCM: "TR. 5º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801310F", nombre: "FILOSOFÍA DE LA ACCIÓN", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "253", nombreOriginalUCM: "FILOSOFÍA DE LA HISTORIA", nombre: "FILOSOFÍA DE LA HISTORIA", caracterOriginalUCM: "OB. 5º", caracter: "Obligatoria", creditos: 4.5 },
-                grado: [ { codigo: "801318F", nombre: "FILOSOFÍA DE LA HISTORIA", caracter: "Optativa", creditos: 6 } ]
-            },
-            
-            // ASIGNATURAS ESPECIALES
-            {
-                licenciatura: { codigo: "104498", nombreOriginalUCM: "TEORÍAS DE LA LIBERTAD", nombre: "TEORÍAS DE LA LIBERTAD", caracterOriginalUCM: "2º", caracter: "Optativa", creditos: 4.5 },
-                grado: [ { codigo: "801314", nombre: "TEORÍA DE LA LIBERTAD", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "U 07", nombreOriginalUCM: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", nombre: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", caracterOriginalUCM: "GENÉRICA", caracter: "Optativa", creditos: 4.5 },
-                grado: [ { codigo: "801327C", nombre: "CIENCIA, TECNOLOGÍA Y SOCIEDAD", caracter: "Optativa", creditos: 6 } ]
-            },
-            {
-                licenciatura: { codigo: "104469F", nombreOriginalUCM: "TEORÍA Y CRÍTICA FEMINISTA", nombre: "TEORÍA Y CRÍTICA FEMINISTA", caracterOriginalUCM: "1º", caracter: "Optativa", creditos: 4.5 },
-                grado: [ { codigo: "801332", nombre: "TEORÍA Y CRÍTICA FEMINISTAS", caracter: "Optativa", creditos: 6 } ]
-            }
-        ];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const fmt = n => String(n).replace('.',',');
+function store(k,v){try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||'null'); localStorage.setItem(k,JSON.stringify(v)) }catch(e){ return null }}
+function semKey(s){ if(/^\d-\d$/.test(s)){const [c,q]=s.split('-').map(Number);return c*10+q} return 999 }
+function semLabel(s){ if(/^\d-\d$/.test(s)){const [c,q]=s.split('-');return `${c}.º curso · ${q==='1'?'1.er':'2.º'} semestre`} return 'Optativas' }
+const cursoLabel = c => c ? `${c}.º curso` : 'Optativas y libre elección';
+const title = s => s.toLowerCase().replace(/(^|[\s(:,-])([a-záéíóúñü])/g,(m,a,b)=>a+b.toUpperCase()).replace(/\b(De|Del|La|Las|Los|Y|E|Para|Al|En|El)\b/g,w=>w.toLowerCase()).replace(/^./,c=>c.toUpperCase()).replace(/\bIi\b/g,'II');
 
-        // --- VARIABLES DE ESTADO Y ELEMENTOS DOM ---
-        let filteredLicenciaturaSubjects = [];
-        let selectedLicenciaturaCodes = []; 
-        const TOTAL_CREDITOS_GRADO = 240;
-        const MAX_OPTATIVAS_RECONOCIBLES = 6;
+const LIC = DATA.lic.map(l=>({...l,nom:title(l.nom)}));
+const CAT = new Map(DATA.cat.map(c=>[c.cod,c]));
+const LIC_BY_ID = new Map(LIC.map(l=>[l.id,l]));
 
-        const searchInput = document.getElementById('search-input');
-        const subjectListEl = document.getElementById('subject-list');
-        const resultsSectionEl = document.getElementById('results-section');
-        const equivalencesContainerEl = document.getElementById('equivalences-container');
-        const noSelectedSubjectsEl = document.getElementById('no-selected-subjects');
-        const summaryTextEl = document.getElementById('summary-text');
-        const noResultsEl = document.getElementById('no-results');
-        const clearSelectedButton = document.getElementById('clear-selected-button');
-        const printSummaryButton = document.getElementById('print-summary-button');
+/* ---------- estado ---------- */
+let sel = new Set(store('lic-sel')||[]);   // conserva el orden en que se marcan
+let part = !!store('lic-part');
+let onlyPending = false;
 
+/* ---------- origen ---------- */
+function renderOrigin(){
+  const q = fold($('#q').value.trim());
+  const vis = LIC.filter(l=>!q || fold(l.nom).includes(q) || fold(l.cod).includes(q));
+  if(!vis.length){ $('#orig').innerHTML='<p class="empty">Ninguna asignatura coincide con la búsqueda.</p>'; return }
+  const groups = new Map();
+  vis.slice().sort((a,b)=>(a.curso||9)-(b.curso||9)).forEach(l=>{const g=cursoLabel(l.curso); if(!groups.has(g)) groups.set(g,[]); groups.get(g).push(l)});
+  let h='';
+  for(const [g,list] of groups){
+    h+=`<div class="group"><div class="ghead"><strong>${esc(g)}</strong><button class="link" type="button" data-all="${esc(g)}">Marcar el curso</button></div>`;
+    for(const l of list){
+      const id=`c-${l.id}`;
+      const maps = l.g.map(c=>CAT.get(c).nom).join(' · ');
+      h+=`<label class="item" for="${id}" data-g="${esc(g)}">
+        <input type="checkbox" id="${id}" value="${l.id}" ${sel.has(l.id)?'checked':''}>
+        <span class="iname"><span class="n">${esc(l.nom)}</span><span class="code">Cód. ${esc(l.cod)}</span><span class="maps">→ ${esc(maps)}</span></span>
+        <span class="chips"><span class="chip">${esc(l.tipo)}</span><span class="lcred">${fmt(l.cred)} créd.</span></span>
+      </label>`;
+    }
+    h+='</div>';
+  }
+  $('#orig').innerHTML=h;
+}
 
-        // --- FUNCIONES AUXILIARES ---
-        function normalizeText(text) {
-            if (!text) return "";
-            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        }
+/* ---------- cálculo ---------- */
+function compute(){
+  const via = new Map();            // código de Grado -> asignaturas de Licenciatura que lo dan
+  const order = [];                 // orden en que se reconocen (para el tope de optativas)
+  for(const id of sel){
+    const l = LIC_BY_ID.get(id); if(!l) continue;
+    for(const c of l.g){
+      if(!via.has(c)){ via.set(c,[]); order.push(c) }
+      via.get(c).push(l);
+    }
+  }
+  // Optativas: computan como máximo 36 ECTS (6 asignaturas); el resto son excedentes
+  const pc = part ? 6 : 0;
+  let opRoom = REQ.OP - pc;
+  const counted = new Set(), excess = [];
+  for(const c of order){
+    const g = CAT.get(c);
+    if(g.car!=='OP'){ counted.add(c); continue }
+    if(opRoom >= g.ects){ counted.add(c); opRoom -= g.ects } else excess.push(c);
+  }
+  const t = {FB:0,OB:0,OP:pc,TFG:0};
+  counted.forEach(c=>{const g=CAT.get(c); t[g.car]+=g.ects});
+  const total = t.FB+t.OB+t.OP+t.TFG;
+  return {via,counted,excess,t,total,pc};
+}
 
-        // --- LÓGICA DE RENDERIZADO ---
-        function renderLicenciaturaSubjectList() {
-            if (!subjectListEl) return;
-            const searchTerm = searchInput.value.trim();
+/* ---------- resultado ---------- */
+function renderResult(){
+  const r = compute();
+  const left = TOTAL - r.total;
+  const pct = k => Math.min(100, r.t[k]/TOTAL*100);
+  let h = `<h2 id="h-res" style="font-family:var(--f-display);font-size:21px;margin:0 0 2px">Resultado en el Grado en Filosofía</h2>
+  <p class="sub" style="color:var(--muted);font-size:13.5px;margin:0 0 12px">Grado en Filosofía (0820) · 240 ECTS</p>
+  <div class="big"><span class="num">${r.total}</span><span class="of">ECTS reconocidos de ${TOTAL} · faltan ${left}</span></div>
+  <div class="bar" aria-hidden="true">${['FB','OB','OP','TFG'].map(k=>`<span style="width:${pct(k)}%;background:${KCOL[k]}"></span>`).join('')}</div>
+  <div class="legend">${['FB','OB','OP','TFG'].map(k=>`<div><span><span class="dot" style="background:${KCOL[k]};margin-right:6px"></span>${KIND[k]}</span><b>${r.t[k]} / ${REQ[k]}</b></div>`).join('')}</div>`;
 
-            if (filteredLicenciaturaSubjects.length === 0 && searchTerm !== "") {
-                subjectListEl.style.display = 'none';
-                noResultsEl.style.display = 'block';
-                return;
-            }
+  const opLeft = REQ.OP - r.t.OP;
+  h += `<div class="note">El Grado exige ${REQ.OP} ECTS optativos, es decir, seis optativas. ${opLeft>0?`Te faltarían ${opLeft} ECTS optativos.`:'Los tendrías completos.'}
+    <label class="toggle" for="part" style="margin-top:8px;color:var(--ink)"><input type="checkbox" id="part" ${part?'checked':''}> Tengo reconocidos 6 ECTS de créditos de participación (cuentan como una optativa)</label></div>`;
 
-            noResultsEl.style.display = 'none';
-            subjectListEl.style.display = 'block';
-            subjectListEl.innerHTML = filteredLicenciaturaSubjects.map(item => {
-                const isSelected = selectedLicenciaturaCodes.includes(item.licenciatura.codigo);
-                return `
-                <div class="subject-item ${isSelected ? 'selected-for-adaptation' : ''}" 
-                     onclick="toggleLicenciaturaSelection('${item.licenciatura.codigo}')"
-                     data-codigo="${item.licenciatura.codigo}">
-                    <span class="subject-name">${item.licenciatura.nombre}</span>
-                    <span class="subject-details-lic">
-                        (<span class="subject-code">Cód: ${item.licenciatura.codigo}</span> ${item.licenciatura.caracter}, ${item.licenciatura.creditos} créd.)
-                    </span>
-                </div>
-            `}).join('');
-        }
+  if(r.excess.length) h += `<div class="note warn"><strong>Optativas que no computan.</strong> Superan el máximo de ${REQ.OP} ECTS optativos. Constarán en tu certificado académico, pero no cuentan para terminar el Grado:<ul>${r.excess.map(c=>`<li>${esc(CAT.get(c).nom)} <span class="code">${c}</span></li>`).join('')}</ul></div>`;
 
-        function renderResults() {
-            if (!equivalencesContainerEl || !summaryTextEl || !resultsSectionEl || !noSelectedSubjectsEl) return;
+  h += `<div class="rtools"><label class="toggle" for="onlyp"><input type="checkbox" id="onlyp" ${onlyPending?'checked':''}> Ver solo lo pendiente</label><span style="flex:1"></span><button class="btn" type="button" id="copy">Copiar resumen</button></div><div id="copybox"></div>`;
 
-            if (selectedLicenciaturaCodes.length === 0) {
-                resultsSectionEl.style.display = 'none';
-                return;
-            }
-            
-            resultsSectionEl.style.display = 'block';
-            equivalencesContainerEl.innerHTML = '';
-            
-            // Acumuladores
-            let allGradoEquivalentsComputables = [];   // Asignaturas que SÍ computan (incl. <=6 optativas)
-            let allGradoEquivalentsExcedentes = [];    // Optativas excedentes (>6)
-            let processedGradoCodes = new Set();       // Para evitar duplicados
-            let optativasReconocidasCount = 0;         // Contador de optativas únicas reconocidas
-            let totalCreditosGradoComputables = 0;     // Suma de créditos que computan
-            let totalCreditosExcedentes = 0;           // Suma de créditos excedentes (informativo)
+  const opFull = opLeft<=0;
+  const rows = DATA.cat.map(g=>({...g, ok:r.counted.has(g.cod), exc:r.excess.includes(g.cod)}))
+    .filter(x=>!(onlyPending && (x.ok || x.exc)))
+    .filter(x=>!(onlyPending && x.car==='OP' && opFull))
+    .sort((a,b)=>semKey(a.sem)-semKey(b.sem) || a.nom.localeCompare(b.nom,'es'));
+  if(!rows.length) h += `<p class="empty">No te queda nada pendiente del Grado.</p>`;
+  const groups = new Map();
+  rows.forEach(x=>{const g=semLabel(x.sem); if(!groups.has(g)) groups.set(g,[]); groups.get(g).push(x)});
+  for(const [g,list] of groups){
+    const done = list.filter(x=>x.ok).reduce((s,x)=>s+x.ects,0);
+    h += `<div class="rgroup"><h3><span>${esc(g)}${g==='Optativas'?' · 36 ECTS en total':''}</span><span>${done} ECTS reconocidos</span></h3>`;
+    for(const x of list){
+      const from = r.via.get(x.cod);
+      const v = from ? `<span class="via">por ${from.map(l=>`${esc(l.nom)} <span class="code">${esc(l.cod)}</span>`).join(' · ')}</span>` : '';
+      const cls = x.ok?'ok':(x.exc?'exc':'pend'), mark = x.ok?'✓':(x.exc?'!':'○');
+      const lab = x.ok?'Reconocida':(x.exc?'Reconocida, no computa':'Pendiente');
+      h += `<div class="rrow ${cls}"><span class="st" aria-label="${lab}">${mark}</span>
+        <span class="rn">${esc(x.nom)} <span class="code">${x.cod}</span>${v}</span>
+        <span class="chips"><span class="chip k-${x.car}">${x.car}</span><span class="chip">${x.ects}</span></span></div>`;
+    }
+    h += `</div>`;
+  }
+  $('#result').innerHTML = h;
+  $('#mb-n').textContent = r.total;
+  $('#onlyp').onchange = e=>{onlyPending=e.target.checked; renderResult()};
+  $('#part').onchange = e=>{part=e.target.checked; store('lic-part',part); renderResult()};
+  $('#copy').onclick = ()=>copySummary(r);
+}
 
-            noSelectedSubjectsEl.style.display = 'none';
-            
-            selectedLicenciaturaCodes.forEach(codigoLic => {
-                const subjectData = adaptationData.find(item => item.licenciatura.codigo === codigoLic);
-                if (!subjectData) return;
-                
-                const block = document.createElement('div');
-                block.className = 'licenciatura-block';
-                block.innerHTML = `<h3>${subjectData.licenciatura.nombre}</h3>
-                                   <p class="lic-details">(Licenciatura: ${subjectData.licenciatura.caracter}, ${subjectData.licenciatura.creditos} créd.) equivale a:</p>`;
-                
-                subjectData.grado.forEach((gradoItem, index) => {
-                    let cardClass = 'equivalence-card';
-                    let badgeClass = 'equivalence-type';
-                    let badgeText = `Equivalencia en Grado ${subjectData.grado.length > 1 ? (index + 1) : ''}`;
-                    let extraNote = '';
-                    
-                    const yaProcesada = processedGradoCodes.has(gradoItem.codigo);
-                    
-                    if (yaProcesada) {
-                        // Asignatura de Grado ya reconocida por otra Licenciatura previa
-                        cardClass += ' duplicada';
-                        badgeClass += ' duplicada-badge';
-                        badgeText = 'Ya reconocida';
-                        extraNote = `<p class="duplicada-note">ℹ️ Esta asignatura del Grado ya ha sido reconocida a través de otra asignatura de Licenciatura. No se cuenta dos veces.</p>`;
-                    } else {
-                        processedGradoCodes.add(gradoItem.codigo);
-                        
-                        if (gradoItem.caracter === 'Optativa') {
-                            optativasReconocidasCount++;
-                            
-                            if (optativasReconocidasCount > MAX_OPTATIVAS_RECONOCIBLES) {
-                                // Optativa excedente
-                                cardClass += ' excedente';
-                                badgeClass += ' excedente-badge';
-                                badgeText = `Optativa nº ${optativasReconocidasCount} (excedente)`;
-                                extraNote = `<p class="excedente-note">⚠️ <strong>Optativa excedente.</strong> El máximo de optativas convalidables es ${MAX_OPTATIVAS_RECONOCIBLES}. Esta asignatura aparecerá en el certificado académico, pero <strong>no computa</strong> para finalizar los estudios de Grado.</p>`;
-                                allGradoEquivalentsExcedentes.push(gradoItem);
-                                totalCreditosExcedentes += gradoItem.creditos;
-                            } else {
-                                // Optativa dentro del límite
-                                badgeText = `Optativa nº ${optativasReconocidasCount} de ${MAX_OPTATIVAS_RECONOCIBLES}`;
-                                allGradoEquivalentsComputables.push(gradoItem);
-                                totalCreditosGradoComputables += gradoItem.creditos;
-                            }
-                        } else {
-                            // Obligatoria o Formación Básica: siempre computa
-                            allGradoEquivalentsComputables.push(gradoItem);
-                            totalCreditosGradoComputables += gradoItem.creditos;
-                        }
-                    }
-                    
-                    block.innerHTML += `
-                        <div class="${cardClass}">
-                            <div class="${badgeClass}">${badgeText}</div>
-                            <div class="equivalence-content">
-                                <h4>${gradoItem.nombre || 'Nombre no disponible'}</h4>
-                                <p class="grado-details">(Grado: ${gradoItem.caracter}, ${gradoItem.creditos} ECTS)</p>
-                                ${extraNote}
-                            </div>
-                        </div>`;
-                });
-                equivalencesContainerEl.appendChild(block);
-            });
+function copySummary(r){
+  const L=[];
+  L.push('Simulación orientativa de adaptación: Licenciatura en Filosofía (Plan 2000) → Grado en Filosofía');
+  L.push(`ECTS reconocidos: ${r.total} de ${TOTAL} (FB ${r.t.FB}, OB ${r.t.OB}, OP ${r.t.OP}, TFG ${r.t.TFG}) · faltan ${TOTAL-r.total}`);
+  if(r.pc) L.push('Incluye 6 ECTS de créditos de participación computados como optativa.');
+  L.push('');
+  L.push('Asignaturas de Licenciatura superadas:');
+  [...sel].map(id=>LIC_BY_ID.get(id)).filter(Boolean).forEach(l=>L.push(`- ${l.cod} ${l.nom} (${fmt(l.cred)} créd.)`));
+  L.push('');
+  L.push('Asignaturas del Grado que se reconocerían:');
+  DATA.cat.filter(g=>r.counted.has(g.cod)).forEach(g=>L.push(`- ${g.cod} ${g.nom} (${g.ects} ECTS, ${g.car})`));
+  if(r.excess.length){ L.push(''); L.push('Optativas excedentes (no computan):'); r.excess.forEach(c=>L.push(`- ${c} ${CAT.get(c).nom}`)) }
+  L.push(''); L.push('Simulación orientativa. La resolución corresponde a la Facultad de Filosofía.');
+  const text = L.join('\n');
+  const fallback=()=>{$('#copybox').innerHTML='<textarea class="fallback" id="fb" readonly></textarea>'; const t=$('#fb'); t.value=text; t.focus(); t.select(); toast('Selecciona el texto y cópialo')};
+  try{ navigator.clipboard.writeText(text).then(()=>toast('Resumen copiado'),fallback) }catch(e){ fallback() }
+}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
 
-            // Renderizar resumen general
-            renderSummary({
-                computables: allGradoEquivalentsComputables,
-                excedentes: allGradoEquivalentsExcedentes,
-                optativasCount: optativasReconocidasCount,
-                creditosComputables: totalCreditosGradoComputables,
-                creditosExcedentes: totalCreditosExcedentes
-            });
-        }
-        
-        function renderSummary({ computables, excedentes, optativasCount, creditosComputables, creditosExcedentes }) {
-            if (computables.length === 0 && excedentes.length === 0) {
-                summaryTextEl.innerHTML = `<p>Aún no has seleccionado asignaturas de Licenciatura o las seleccionadas no tienen equivalencias directas definidas.</p>`;
-                return;
-            }
-            
-            // Contador visual de optativas
-            const optativasReconocidas = Math.min(optativasCount, MAX_OPTATIVAS_RECONOCIBLES);
-            let counterClass = 'ok';
-            if (optativasReconocidas === MAX_OPTATIVAS_RECONOCIBLES && excedentes.length === 0) counterClass = 'full';
-            if (excedentes.length > 0) counterClass = 'over';
-            
-            let summary = '';
-            
-            // Bloque de asignaturas computables
-            if (computables.length > 0) {
-                summary += `<p>Con las asignaturas de Licenciatura seleccionadas, se te reconocerían las siguientes asignaturas del nuevo Grado en Filosofía <strong>(computables para finalizar el Grado)</strong>:</p><ul>`;
-                // Ordenar: primero Formación Básica y Obligatoria, luego Optativas; alfabéticamente dentro
-                const ordenCaracter = { 'Formación Básica': 1, 'Obligatoria': 2, 'Optativa': 3 };
-                computables.sort((a, b) => {
-                    const ordA = ordenCaracter[a.caracter] || 99;
-                    const ordB = ordenCaracter[b.caracter] || 99;
-                    if (ordA !== ordB) return ordA - ordB;
-                    return a.nombre.localeCompare(b.nombre);
-                }).forEach(g => {
-                    summary += `<li><strong>${g.nombre}</strong> (${g.caracter}, ${g.creditos} ECTS)</li>`;
-                });
-                summary += `</ul>`;
-            }
-            
-            // Bloque de excedentes
-            if (excedentes.length > 0) {
-                summary += `<div class="summary-warning">
-                    <strong>⚠️ Optativas excedentes (no computan para finalizar el Grado):</strong>
-                    <p style="margin-top: 6px;">Las siguientes ${excedentes.length} optativa(s) superan el máximo de <strong>${MAX_OPTATIVAS_RECONOCIBLES} optativas convalidables</strong>. Aparecerán en el certificado académico oficial, pero no se contabilizan para alcanzar los ${TOTAL_CREDITOS_GRADO} ECTS del Grado:</p>
-                    <ul style="margin-top: 8px;">`;
-                excedentes.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(g => {
-                    summary += `<li><strong>${g.nombre}</strong> (${g.caracter}, ${g.creditos} ECTS)</li>`;
-                });
-                summary += `</ul></div>`;
-            }
-            
-            // Bloque de créditos
-            summary += `<div class="summary-credits">
-                            <p>Optativas reconocidas: 
-                                <span class="optativas-counter ${counterClass}">${optativasReconocidas} / ${MAX_OPTATIVAS_RECONOCIBLES}</span>
-                                ${excedentes.length > 0 ? `<span style="font-weight: normal; font-size: 0.9rem; color: #856404;"> (+${excedentes.length} excedente${excedentes.length > 1 ? 's' : ''})</span>` : ''}
-                            </p>
-                            <p>Total ECTS de Grado computables: <strong>${creditosComputables}</strong></p>
-                            <p>ECTS de Grado restantes por cursar: <strong>${TOTAL_CREDITOS_GRADO - creditosComputables}</strong> (de ${TOTAL_CREDITOS_GRADO} totales)</p>
-                            ${creditosExcedentes > 0 ? `<p style="font-weight: normal; font-size: 0.95rem; color: #856404;">ECTS excedentes (solo certificado académico, no computables): ${creditosExcedentes}</p>` : ''}
-                        </div>`;
-            
-            summaryTextEl.innerHTML = summary;
-        }
+/* ---------- eventos ---------- */
+function save(){ store('lic-sel',[...sel]) }
+$('#orig').addEventListener('change',e=>{
+  if(e.target.type!=='checkbox') return;
+  e.target.checked ? sel.add(e.target.value) : sel.delete(e.target.value);
+  save(); renderResult();
+});
+$('#orig').addEventListener('click',e=>{
+  const g = e.target.dataset && e.target.dataset.all; if(!g) return;
+  const boxes=[...document.querySelectorAll(`label.item[data-g="${CSS.escape(g)}"] input`)];
+  const allOn = boxes.every(b=>b.checked);
+  boxes.forEach(b=>{ b.checked=!allOn; !allOn ? sel.add(b.value) : sel.delete(b.value) });
+  save(); renderResult();
+});
+$('#q').addEventListener('input',renderOrigin);
+$('#clear').onclick=()=>{ sel.clear(); save(); renderOrigin(); renderResult() };
+$('#example').onclick=()=>{
+  sel.clear(); LIC.forEach(l=>{ if(l.curso && l.curso<=3) sel.add(l.id) });
+  save(); renderOrigin(); renderResult(); toast('Ejemplo: primer ciclo de la Licenciatura superado');
+};
+$('#mb-go').onclick=()=>$('#result').scrollIntoView({behavior:'smooth'});
 
-        // --- MANEJADORES DE EVENTOS Y LÓGICA DE INTERACCIÓN ---
-        function filterLicenciaturaSubjects(searchTerm) {
-            const normalizedSearchTerm = normalizeText(searchTerm);
-            if (!normalizedSearchTerm.trim()) {
-                filteredLicenciaturaSubjects = [...adaptationData];
-            } else {
-                filteredLicenciaturaSubjects = adaptationData.filter(item =>
-                    normalizeText(item.licenciatura.nombre).includes(normalizedSearchTerm) ||
-                    item.licenciatura.codigo.toString().toLowerCase().includes(normalizedSearchTerm)
-                );
-            }
-            renderLicenciaturaSubjectList();
-        }
-
-        function toggleLicenciaturaSelection(codigoLic) {
-            const index = selectedLicenciaturaCodes.indexOf(codigoLic);
-            if (index > -1) {
-                selectedLicenciaturaCodes.splice(index, 1);
-            } else {
-                selectedLicenciaturaCodes.push(codigoLic);
-            }
-            
-            const listItem = subjectListEl.querySelector(`.subject-item[data-codigo="${codigoLic}"]`);
-            if(listItem) {
-                listItem.classList.toggle('selected-for-adaptation');
-            }
-            renderResults();
-        }
-        
-        function clearAllSelections() {
-            selectedLicenciaturaCodes = [];
-            searchInput.value = '';
-            filterLicenciaturaSubjects('');
-            renderResults();
-        }
-
-        function printSummary() {
-            window.print();
-        }
-
-        // --- INICIALIZACIÓN ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => filterLicenciaturaSubjects(e.target.value));
-            }
-            if (clearSelectedButton) {
-                clearSelectedButton.addEventListener('click', clearAllSelections);
-            }
-            if (printSummaryButton) {
-                printSummaryButton.addEventListener('click', printSummary);
-            }
-            
-            filteredLicenciaturaSubjects = [...adaptationData];
-            renderLicenciaturaSubjectList();
-            renderResults(); 
-        });
-
-    </script>
+const firstVisit = !sel.size;
+renderOrigin(); renderResult();
+if(firstVisit) $('#example').click();
+</script>
 </body>
 </html>
