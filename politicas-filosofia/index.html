@@ -139,7 +139,7 @@ textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-siz
   </div>
 
   <footer>
-    Fuente: tabla de equivalencias del Doble Grado en Ciencias Políticas y Filosofía (DT50) con el Grado en Filosofía (0820) y el Grado en Ciencias Políticas (0838), versión modificada en la Sección de Grados el 12/05/2021; créditos exigidos según su cuadro resumen y el plan de estudios del Grado en Filosofía (enero de 2026). La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
+    Fuente: tabla de equivalencias del Doble Grado en Ciencias Políticas y Filosofía (DT50) con el Grado en Filosofía (0820) y el Grado en Ciencias Políticas (0838), versión modificada en la Sección de Grados el 12/05/2021; créditos exigidos según su cuadro resumen y el plan de estudios del Grado en Filosofía (enero de 2026) y del Grado en Ciencias Políticas. La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
   </footer>
 </div>
 
@@ -270,17 +270,17 @@ function renderResult(){
   // Requisitos según los planes publicados:
   //  Doble Grado DT50 (cuadro resumen): FB 90 · OB 258 · OP 6 · TFG 12 = 366
   //  Grado en Filosofía: FB 60 · OB 138 · OP 36 · TFG 6 = 240
-  //  Grado en Ciencias Políticas: 240; optativas sin confirmar (la tabla no cuadra con el plan 2023)
+  //  Grado en Ciencias Políticas: 240; cursos 1.º-3.º (180) + 54 ECTS optativos (nueve optativas o siete y prácticas) + TFG 6
   const opSplit={der:0,fil:0};
   r.rec.filter(x=>x.car==='OP').forEach(x=>{opSplit[(x.row&&x.row.der)?'der':'fil']+=x.ects});
-  const REQOP = {dg:6, fil:36, der:null}[to];
+  const REQOP = {dg:6, fil:36, der:54}[to];
   const req = to==='dg' ? {FB:90,OB:258,OP:6,TFG:12} : {FB:tr.FB+tp.FB,OB:tr.OB+tp.OB,TFG:tr.TFG+tp.TFG,OP:REQOP};
   // En los grados, 6 ECTS de créditos de participación pueden sustituir a una optativa
   const pc = (to!=='dg' && part[mode]) ? 6 : 0;
   const opCount = to==='dg' ? Math.min(tr.OP,6) : (REQOP ? Math.min(tr.OP+pc,REQOP) : tr.OP+pc);
   const recTotal = tr.FB+tr.OB+tr.TFG+opCount;
   const planTotal = to==='dg' ? 366 : 240;
-  const known = to!=='der';
+  const known = true;
   const left = planTotal-recTotal;
   const pct = k => Math.max(0,Math.min(100,( (k==='OP'?opCount:tr[k]) / planTotal)*100));
 
@@ -302,7 +302,7 @@ function renderResult(){
     const totOP = tr.OP+pc;
     const f=REQOP?Math.max(0,REQOP-opCount):0;
     const txt = REQOP
-      ? `El ${esc(PLAN[to].name)} exige ${REQOP} ECTS optativos. ${totOP>REQOP?`Llevas ${totOP}; cuentan ${REQOP}.`:(f?`Te faltarían ${f} ECTS optativos.`:'Los tendrías completos.')}`
+      ? `El ${esc(PLAN[to].name)} exige ${REQOP} ECTS optativos${to==='der'?' en 4.º curso: nueve optativas, o siete y Prácticas Externas':''}. ${totOP>REQOP?`Llevas ${totOP}; cuentan ${REQOP}.`:(f?`Te faltarían ${f} ECTS optativos.`:'Los tendrías completos.')}`
       : `Llevas ${totOP} ECTS optativos reconocidos. Todavía no está confirmado cuántos exige el Grado en Ciencias Políticas, así que no se calcula lo que falta para terminar.`;
     h+=`<div class="note">${txt}
       <label class="toggle" for="part" style="margin-top:8px;color:var(--ink)"><input type="checkbox" id="part" ${part[mode]?'checked':''}> Tengo reconocidos 6 ECTS de créditos de participación (cuentan como una optativa)</label></div>`;
@@ -323,7 +323,7 @@ function renderResult(){
   if(!all.length) h+=`<p class="empty">No queda nada pendiente entre las asignaturas de la tabla.</p>`;
   for(const [g,list] of groups){
     const done=list.filter(x=>x.ok).reduce((s,x)=>s+x.ects,0);
-    const optLabel = g==='Optativas' ? ({dg:' · elige una (6 ECTS)',fil:' · 36 ECTS en total',der:' · según tu plan'}[to]) : '';
+    const optLabel = g==='Optativas' ? ({dg:' · elige una (6 ECTS)',fil:' · 36 ECTS en total',der:' · 54 ECTS en total'}[to]) : '';
     h+=`<div class="rgroup"><h3><span>${esc(g)}${optLabel}</span><span>${done} ECTS reconocidos</span></h3>`;
     for(const x of list){
       const via = x.ok ? x.via.map(v=>`<span class="via">${v.cross?'<em>otra asignatura</em>':''}por ${esc(v.nom)} <span class="code">${v.cod}</span>${v.plan?` · ${PLAN[v.plan].short}`:''}</span>`).join('')
@@ -346,7 +346,7 @@ function copySummary(r,tr,recTotal,planTotal,opCount){
   const {to}=MODES[mode];
   const L=[];
   L.push(`Simulación orientativa de reconocimiento: ${MODES[mode].from==='dg'?'Doble Grado en Ciencias Políticas y Filosofía':'Grado en Filosofía / Grado en Ciencias Políticas'} → ${PLAN[to].name}`);
-  L.push(`ECTS reconocidos: ${recTotal} de ${planTotal} (FB ${tr.FB}, OB ${tr.OB}, OP ${opCount}, TFG ${tr.TFG}) ${to!=='der'?` · faltan ${planTotal-recTotal}`:''}`);
+  L.push(`ECTS reconocidos: ${recTotal} de ${planTotal} (FB ${tr.FB}, OB ${tr.OB}, OP ${opCount}, TFG ${tr.TFG}) · faltan ${planTotal-recTotal}`);
   if(to!=='dg' && part[mode]) L.push('Incluye 6 ECTS de créditos de participación computados como optativa.');
   L.push('');
   L.push('Asignaturas que se reconocerían:');

@@ -119,6 +119,7 @@ textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-siz
     <p class="lede">Marca las asignaturas que tienes superadas y verás cuáles se reconocerían en el plan de destino, según la tabla de equivalencias del plan 2026. El resultado es orientativo.</p>
     <div class="modes" role="group" aria-label="Grado de destino">
       <button class="mode" id="m-dg-fil" data-mode="dg-fil" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot fil"></span>Grado en Filosofía</button>
+      <button class="mode" id="m-dt34-dg" data-mode="dt34-dg" aria-pressed="false"><span class="dot dg"></span>Doble Grado 2020 (DT34) <span class="arrow">→</span> <span class="dot dg"></span>Doble Grado 2026 (DT57)</button>
       <button class="mode" id="m-dg-der" data-mode="dg-der" aria-pressed="false"><span class="dot dg"></span>Doble Grado <span class="arrow">→</span> <span class="dot der"></span>Grado en Derecho</button>
     </div>
   </header>
@@ -139,7 +140,7 @@ textarea.fallback{width:100%;min-height:160px;font-family:var(--f-mono);font-siz
   </div>
 
   <footer>
-    Fuente: Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (DT57, 2026), con el Grado en Filosofía (0820) y el Grado en Derecho (080-M); estructura semestral del Anexo III; créditos exigidos según los planes de estudios publicados del Doble Grado (junio de 2026), del Grado en Filosofía (enero de 2026) y del Grado en Derecho. La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
+    Fuentes: tabla de adaptación del Doble Grado DT34 (2020) al DT57 (2026); Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (DT57, 2026), con el Grado en Filosofía (0820) y el Grado en Derecho (080-M); estructura semestral del Anexo III; créditos exigidos según los planes de estudios publicados del Doble Grado (junio de 2026), del Grado en Filosofía (enero de 2026) y del Grado en Derecho. La resolución del reconocimiento corresponde a la Facultad y puede tener en cuenta circunstancias del expediente que esta simulación no recoge.
   </footer>
 </div>
 
@@ -157,7 +158,8 @@ const PLAN = {
 };
 const MODES = {
   'dg-fil':{from:'dg',to:'fil'},
-  'dg-der':{from:'dg',to:'der'}
+  'dg-der':{from:'dg',to:'der'},
+  'dt34-dg':{from:'dt34',to:'dg'}
 };
 
 /* ---------- utilidades ---------- */
@@ -199,14 +201,19 @@ let part = {}; // créditos de participación (6 ECTS) por modo
 for(const m in MODES){ part[m] = !!store('sim-part-'+m) }
 
 /* ---------- origen ---------- */
+/* Tabla de adaptación DT34 (2020) → DT57 (2026). Semestre: el de la asignatura equivalente del DT57 */
+const DT34 = [{"cod":"902000","nom":"Introducción al Sistema Jurídico","ects":6,"car":"FB","sem":"1-1","to":"903066"},{"cod":"902001","nom":"Derecho Romano","ects":6,"car":"FB","sem":"1-1","to":"903067"},{"cod":"902002","nom":"La Formación del Derecho Común Europeo","ects":3,"car":"OB","sem":"1-1","to":"903068"},{"cod":"902003","nom":"Habilidades Básicas del Jurista","ects":3,"car":"OB","sem":"1-1","to":"903069"},{"cod":"902004","nom":"Filosofía Política I","ects":6,"car":"FB","sem":"1-1","to":"903070"},{"cod":"902005","nom":"Antropología Filosófica I","ects":6,"car":"FB","sem":"1-1","to":"903071"},{"cod":"902006","nom":"Historia de la Filosofía Antigua","ects":6,"car":"OB","sem":"1-1","to":"903072"},{"cod":"902007","nom":"Introducción a la Economía","ects":6,"car":"FB","sem":"1-2","to":"903073"},{"cod":"902008","nom":"Fundamentos del Derecho Moderno y Contemporáneo","ects":6,"car":"FB","sem":"1-2","to":"903074"},{"cod":"902009","nom":"Filosofía del Derecho","ects":6,"car":"FB","sem":"1-2","to":"903075"},{"cod":"902010","nom":"Antropología Filosófica II","ects":6,"car":"OB","sem":"1-2","to":"903076"},{"cod":"902011","nom":"Historia de la Filosofía Medieval","ects":6,"car":"OB","sem":"1-2","to":"903077"},{"cod":"902012","nom":"Filosofía Política II","ects":6,"car":"OB","sem":"1-2","to":"903078"},{"cod":"902013","nom":"Derecho Constitucional: Constitución y Fuentes del Ordenamiento Jurídico. Justicia Constitucional","ects":6,"car":"FB","sem":"2-1","to":"903079"},{"cod":"902014","nom":"Fundamentos del Derecho Penal y Consecuencias Jurídicas del Delito","ects":6,"car":"FB","sem":"2-1","to":"903080"},{"cod":"902015","nom":"Derecho Civil: Derecho de la Persona y de las Relaciones Familiares","ects":6,"car":"FB","sem":"2-1","to":"903081"},{"cod":"902016","nom":"Ontología Fundamental","ects":6,"car":"FB","sem":"2-1","to":"903082"},{"cod":"902017","nom":"Lógica I","ects":6,"car":"OB","sem":"2-1","to":"903083"},{"cod":"902018","nom":"Alemán Básico para Filósofos","ects":6,"car":"FB","sem":"x","to":null},{"cod":"902019","nom":"Derecho Constitucional: Organización Constitucional y Territorial del Estado","ects":6,"car":"FB","sem":"2-2","to":"903084"},{"cod":"902020","nom":"Teoría Jurídica del Delito","ects":6,"car":"OB","sem":"2-2","to":"903085"},{"cod":"902021","nom":"Derecho Civil: Teoría General de la Obligación y del Contrato","ects":6,"car":"OB","sem":"2-2","to":"903086"},{"cod":"902022","nom":"Estética","ects":6,"car":"FB","sem":"2-2","to":"903087"},{"cod":"902023","nom":"Historia de la Filosofía Moderna","ects":6,"car":"OB","sem":"2-2","to":"903088"},{"cod":"902024","nom":"Lógica II","ects":6,"car":"OB","sem":"2-2","to":"903089"},{"cod":"902025","nom":"Derecho Penal: Parte Especial","ects":6,"car":"OB","sem":"3-1","to":"903090"},{"cod":"902026","nom":"Derecho Civil: Contratos y Responsabilidad Civil","ects":6,"car":"OB","sem":"3-1","to":"903091"},{"cod":"902027","nom":"Derecho Constitucional: Derechos Fundamentales y su Protección","ects":6,"car":"OB","sem":"3-1","to":"903092"},{"cod":"902028","nom":"Ética I","ects":6,"car":"FB","sem":"3-1","to":"903093"},{"cod":"902029","nom":"Metafísica I","ects":6,"car":"OB","sem":"3-1","to":"903094"},{"cod":"902030","nom":"Filosofía de la Naturaleza","ects":6,"car":"OB","sem":"3-1","to":"903095"},{"cod":"902031","nom":"Derecho Internacional Público","ects":6,"car":"FB","sem":"3-2","to":"903096"},{"cod":"902032","nom":"Derecho Civil: Derechos Reales","ects":6,"car":"OB","sem":"3-2","to":"903097"},{"cod":"902033","nom":"Derecho Administrativo: Fundamentos, Fuentes, Sujetos y Potestades","ects":6,"car":"OB","sem":"3-2","to":"903098"},{"cod":"902034","nom":"Derecho Presupuestario Español y de la Unión Europea","ects":3,"car":"OB","sem":"3-2","to":"903099"},{"cod":"902035","nom":"Ética II","ects":6,"car":"OB","sem":"3-2","to":"903100"},{"cod":"902036","nom":"Metafísica II","ects":6,"car":"OB","sem":"3-2","to":"903101"},{"cod":"902037","nom":"Filosofía del Siglo XIX","ects":6,"car":"OB","sem":"5-2","to":"903121"},{"cod":"902038","nom":"Derecho de la Unión Europea","ects":6,"car":"OB","sem":"4-1","to":"903102"},{"cod":"902039","nom":"Derecho Administrativo: La Actividad de la Administración","ects":6,"car":"OB","sem":"4-1","to":"903103"},{"cod":"902040","nom":"Derecho Civil: Economía del Matrimonio y Sucesiones","ects":6,"car":"OB","sem":"4-1","to":"903104"},{"cod":"902041","nom":"Filosofía del Lenguaje I","ects":6,"car":"OB","sem":"4-1","to":"903105"},{"cod":"902042","nom":"Teoría del Conocimiento I","ects":6,"car":"OB","sem":"4-1","to":"903106"},{"cod":"902043","nom":"Filosofía Española Contemporánea","ects":6,"car":"OB","sem":"6-1","to":"903124"},{"cod":"902044","nom":"Derecho Procesal: Parte General","ects":6,"car":"OB","sem":"4-2","to":"903107"},{"cod":"902045","nom":"Derecho Administrativo: Medios, Responsabilidad y Control","ects":6,"car":"OB","sem":"4-2","to":"903108"},{"cod":"902046","nom":"Instituciones de Derecho Tributario","ects":6,"car":"OB","sem":"4-2","to":"903109"},{"cod":"902047","nom":"Teoría del Conocimiento II","ects":6,"car":"OB","sem":"4-2","to":"903110"},{"cod":"902048","nom":"Filosofía del Lenguaje II","ects":6,"car":"OB","sem":"4-2","to":"903111"},{"cod":"902049","nom":"Perspectivas de la Estética Contemporánea","ects":6,"car":"OB","sem":"5-2","to":"903120"},{"cod":"902050","nom":"Derecho Mercantil: Empresa, Valores y Contratación Mercantil","ects":6,"car":"OB","sem":"5-1","to":"903112"},{"cod":"902051","nom":"Derecho Procesal: El Proceso Civil","ects":6,"car":"OB","sem":"5-1","to":"903113"},{"cod":"902052","nom":"Sistema Tributario Español","ects":6,"car":"OB","sem":"5-1","to":"903114"},{"cod":"902053","nom":"Filosofía de la Mente","ects":6,"car":"OB","sem":"5-1","to":"903115"},{"cod":"902054","nom":"Filosofía de la Ciencia I","ects":6,"car":"OB","sem":"5-1","to":"903116"},{"cod":"902055","nom":"Corrientes Actuales de la Filosofía I","ects":6,"car":"OB","sem":"6-1","to":"903123"},{"cod":"902056","nom":"Derecho Mercantil: Sociedades","ects":6,"car":"OB","sem":"5-2","to":"903117"},{"cod":"902057","nom":"Derecho del Trabajo: Instituciones y Relaciones Colectivas de Trabajo","ects":6,"car":"OB","sem":"5-2","to":"903118"},{"cod":"902058","nom":"Derecho Procesal: El Proceso Penal","ects":6,"car":"OB","sem":"5-2","to":"903119"},{"cod":"902059","nom":"Corrientes Actuales de la Filosofía II","ects":6,"car":"OB","sem":"6-2","to":"903128"},{"cod":"902060","nom":"Filosofía de la Ciencia II","ects":6,"car":"OB","sem":"5-2","to":"903122"},{"cod":"902061","nom":"Derecho del Trabajo: Contrato de Trabajo y Proceso Laboral","ects":6,"car":"OB","sem":"6-1","to":"903125"},{"cod":"902062","nom":"Derecho Internacional Privado: Fundamentos y Patrimonio","ects":6,"car":"OB","sem":"6-1","to":"903126"},{"cod":"902063","nom":"Derecho Mercantil: Mercados Financieros y Concursal","ects":6,"car":"OB","sem":"6-1","to":"903127"},{"cod":"902064","nom":"Derecho Internacional Privado de Personas y Familia","ects":3,"car":"OB","sem":"6-2","to":"903129"},{"cod":"902065","nom":"Derecho y Religiones","ects":6,"car":"OP","sem":"6-1/2","to":"903130"},{"cod":"902066","nom":"Tutela del Crédito y Procesos Especiales","ects":6,"car":"OP","sem":"6-1/2","to":"903131"},{"cod":"902067","nom":"Derecho de las Nuevas Tecnologías","ects":6,"car":"OP","sem":"6-1/2","to":"903132"},{"cod":"902068","nom":"Filosofía de la Acción","ects":6,"car":"OP","sem":"6-1/2","to":"903155"},{"cod":"902069","nom":"Filosofía de la Cultura","ects":6,"car":"OP","sem":"6-1/2","to":"903150"},{"cod":"902070","nom":"Teoría de la Libertad","ects":6,"car":"OP","sem":"6-1/2","to":"903152"},{"cod":"902071","nom":"Filosofía de la Religión","ects":6,"car":"OP","sem":"6-1/2","to":"903156"},{"cod":"902072","nom":"Bienes Públicos, Urbanismo y Medio Ambiente","ects":6,"car":"OP","sem":"6-1/2","to":"903133"},{"cod":"902073","nom":"Filosofía de la Historia","ects":6,"car":"OP","sem":"6-1/2","to":"903137"},{"cod":"902074","nom":"Servicios Públicos y Sectores Regulados","ects":6,"car":"OP","sem":"6-1/2","to":"903134"},{"cod":"902075","nom":"Derecho de la Inmigración","ects":6,"car":"OP","sem":"x","to":null},{"cod":"902076","nom":"Seminario de Filosofía Contemporánea","ects":6,"car":"OP","sem":"6-1/2","to":"903141"},{"cod":"902077","nom":"Teoría de la Racionalidad Práctica","ects":6,"car":"OP","sem":"x","to":null},{"cod":"902078","nom":"Bioética","ects":6,"car":"OP","sem":"6-1/2","to":"903149"},{"cod":"902079","nom":"Ciencia, Tecnología y Sociedad","ects":6,"car":"OP","sem":"6-1/2","to":"903157"},{"cod":"902080","nom":"Relaciones Familiares y Pluralismo Jurídico","ects":6,"car":"OP","sem":"6-1/2","to":"903135"},{"cod":"902081","nom":"Derechos Humanos y Justicia","ects":6,"car":"OP","sem":"x","to":null},{"cod":"902082","nom":"Prácticas Externas","ects":6,"car":"OP","sem":"6-1/2","to":"903136"},{"cod":"902083","nom":"Teoría y Crítica Feministas","ects":6,"car":"OP","sem":"6-1/2","to":"903154"},{"cod":"902084","nom":"Alemán Avanzado para Filósofos","ects":6,"car":"OP","sem":"x","to":null},{"cod":"902085","nom":"Latín para Filósofos","ects":6,"car":"OP","sem":"x","to":null},{"cod":"902086","nom":"Griego para Filósofos","ects":6,"car":"OP","sem":"x","to":null},{"cod":"902087","nom":"Teoría de la Sociedad: Historia de las Teorías Feministas","ects":6,"car":"OP","sem":"6-1/2","to":"903151"},{"cod":"902089","nom":"Trabajo Fin de Grado (Derecho)","ects":6,"car":"TFG","sem":"6-2","to":"903159"},{"cod":"902088","nom":"Trabajo Fin de Grado (Filosofía)","ects":6,"car":"TFG","sem":"6-2","to":"903158"}];
 function originLists(){
+  if(MODES[mode].from==='dt34') return [{plan:'dt34',items:DT34}];
   if(MODES[mode].from==='dg') return [{plan:'dg',items:DG}];
   return [{plan:'fil',items:FIL},{plan:'der',items:DER}];
 }
 function renderOrigin(){
   const q = fold($('#q').value.trim());
   const f = MODES[mode].from;
-  $('#orig-sub').textContent = f==='dg'
+  $('#orig-sub').textContent = f==='dt34'
+    ? 'Plan de origen: Doble Grado en Derecho y Filosofía 2020 (DT34). Agrupadas según el curso del DT57 al que equivalen.'
+    : f==='dg'
     ? 'Plan de origen: Doble Grado en Derecho y Filosofía (DT57, 2026). Agrupadas por curso y semestre.'
     : 'Plan de origen: Grado en Filosofía (0820) y Grado en Derecho (080-M). Puedes marcar asignaturas de ambos.';
   let html='';
@@ -215,10 +222,12 @@ function renderOrigin(){
     if(f==='g') html+=`<div class="plan-tag ${plan}"><span class="dot ${plan}"></span>${PLAN[plan].name}</div>`;
     if(!vis.length){ html+=`<p class="empty">Ninguna asignatura coincide con la búsqueda.</p>`; continue }
     const groups=new Map();
-    vis.slice().sort((a,b)=>semKey(a.sem)-semKey(b.sem)).forEach(it=>{const g=semLabel(it.sem);if(!groups.has(g))groups.set(g,[]);groups.get(g).push(it)});
+    const key = it => f==='dt34' && !it.to ? 1000 : semKey(it.sem);
+    const lab = it => f!=='dt34' ? semLabel(it.sem) : (!it.to ? 'Sin equivalente en el DT57' : (it.car==='OP' ? 'Optativas' : `Equivalen a ${it.sem[0]}.º curso del DT57`));
+    vis.slice().sort((a,b)=>key(a)-key(b)).forEach(it=>{const g=lab(it);if(!groups.has(g))groups.set(g,[]);groups.get(g).push(it)});
     for(const [g,list] of groups){
       const gid = plan+'|'+g;
-      html+=`<div class="group"><div class="ghead"><strong>${esc(g)}</strong>${g!=='Optativas'?`<button class="link" type="button" data-all="${esc(gid)}">Marcar el semestre</button>`:''}</div>`;
+      html+=`<div class="group"><div class="ghead"><strong>${esc(g)}</strong>${g!=='Optativas'&&g!=='Sin equivalente en el DT57'?`<button class="link" type="button" data-all="${esc(gid)}">${f==='dt34'?'Marcar el curso':'Marcar el semestre'}</button>`:''}</div>`;
       for(const it of list){
         const id=`c-${mode}-${it.cod}`;
         html+=`<label class="item" for="${id}" data-g="${esc(gid)}">
@@ -237,7 +246,13 @@ function renderOrigin(){
 function compute(){
   const S = sel[mode], {from,to} = MODES[mode];
   const out = {rec:[], pend:[], orphan:[], cross:[]};
-  if(from==='dg'){
+  if(from==='dt34'){
+    for(const d of DG){
+      const via = DT34.filter(x=>x.to===d.cod && S.has(x.cod)).map(x=>({nom:x.nom,cod:x.cod}));
+      (via.length?out.rec:out.pend).push({...d,via});
+    }
+    DT34.forEach(x=>{ if(S.has(x.cod) && !x.to) out.orphan.push(x) });
+  } else if(from==='dg'){
     const target = to==='fil'?FIL:[...DER,...DER_EXTRA];
     for(const t of target){
       const via = t.rows.filter(r=>S.has(r.cod));
@@ -347,7 +362,7 @@ function renderResult(){
 function copySummary(r,tr,recTotal,planTotal,opCount){
   const {to}=MODES[mode];
   const L=[];
-  L.push(`Simulación orientativa de reconocimiento: ${MODES[mode].from==='dg'?'Doble Grado en Derecho y Filosofía':'Grado en Filosofía / Grado en Derecho'} → ${PLAN[to].name}`);
+  L.push(`Simulación orientativa de reconocimiento: ${{dg:'Doble Grado en Derecho y Filosofía (DT57)',dt34:'Doble Grado en Derecho y Filosofía 2020 (DT34)'}[MODES[mode].from]||'Grado en Filosofía / Grado en Derecho'} → ${PLAN[to].name}`);
   L.push(`ECTS reconocidos: ${recTotal} de ${planTotal} (FB ${tr.FB}, OB ${tr.OB}, OP ${opCount}, TFG ${tr.TFG}) · faltan ${planTotal-recTotal}`);
   if(to!=='dg' && part[mode]) L.push('Incluye 6 ECTS de créditos de participación computados como optativa.');
   L.push('');
@@ -355,7 +370,7 @@ function copySummary(r,tr,recTotal,planTotal,opCount){
   r.rec.forEach(x=>L.push(`- ${x.cod} ${x.nom} (${x.ects} ECTS, ${x.car}) ← ${x.via.map(v=>v.cod+' '+v.nom).join('; ')}`));
   if(r.orphan.length){L.push('');L.push('Superadas sin equivalencia:');r.orphan.forEach(x=>L.push(`- ${x.cod} ${x.nom}`))}
   if(r.cross.length){L.push('');L.push('Para consultar en Secretaría:');r.cross.forEach(x=>L.push(`- ${x.cod} ${x.nom}`))}
-  L.push('');L.push('Fuente: Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (DT57, 2026).');
+  L.push('');L.push('Fuentes: tabla de adaptación del Doble Grado DT34 (2020) al DT57 (2026); Anexo IV, tabla de equivalencias del Doble Grado en Derecho y Filosofía (DT57, 2026).');
   const text=L.join('\n');
   const done=()=>toast('Resumen copiado');
   const fallback=()=>{$('#copybox').innerHTML=`<textarea class="fallback" id="fb" readonly></textarea>`;const t=$('#fb');t.value=text;t.focus();t.select();toast('Selecciona el texto y cópialo')};
